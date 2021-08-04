@@ -15,8 +15,8 @@ import {
 function App() {
   const [gridSize, setGridSize] = useState(30);
   const itemStyle = {
-    marginTop: 11,
-    marginLeft: 11,
+    marginTop: gridSize + 1,
+    marginLeft: gridSize + 1,
     width: gridSize * 2 - 1,
     height: gridSize * 2 - 1,
   };
@@ -24,9 +24,24 @@ function App() {
 
   return (
     <>
-      <Seat style={itemStyle} modifiers={[snapToGrid]} key={gridSize} />
-      <Seat style={itemStyle} modifiers={[snapToGrid]} key={gridSize} />
-      <Seat style={itemStyle} modifiers={[snapToGrid]} key={gridSize} />
+      <Seat
+        coordinates={{ x: 0, y: 0 }}
+        style={itemStyle}
+        modifiers={[snapToGrid]}
+        gridSize={gridSize}
+      />
+      <Seat
+        coordinates={{ x: 0, y: 3 }}
+        style={itemStyle}
+        modifiers={[snapToGrid]}
+        gridSize={gridSize}
+      />
+      <Seat
+        coordinates={{ x: 3, y: 0 }}
+        style={itemStyle}
+        modifiers={[snapToGrid]}
+        gridSize={gridSize}
+      />
       <Grid size={gridSize} onSizeChange={setGridSize} />
     </>
   );

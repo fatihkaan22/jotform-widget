@@ -24,12 +24,23 @@ import {
 import { Draggable } from "./Draggable";
 import { Wrapper } from "./Wrapper";
 
-const defaultCoordinates = {
-  x: 0,
-  y: 0,
-};
-
-export function Seat({ activationConstraint, modifiers, style }) {
+export function Seat({
+  activationConstraint,
+  modifiers,
+  style,
+  gridSize,
+  coordinates,
+}) {
+  let defaultCoordinates = {
+    x: 0,
+    y: 0,
+  };
+  if (coordinates) {
+    defaultCoordinates = {
+      x: coordinates.x * gridSize,
+      y: coordinates.y * gridSize,
+    };
+  }
   const [{ translate }, setTranslate] = useState({
     initialTranslate: defaultCoordinates,
     translate: defaultCoordinates,

@@ -1,5 +1,5 @@
 .Draggable {
-  position: relative;
+  position: absolute;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -26,10 +26,10 @@
     box-shadow 300ms ease;
 }
 
-.Draggable .dragging {
+/* .Draggable .dragging {
   z-index: 1;
   transition: none;
-}
+} */
 
 .dragging * {
   cursor: grabbing;
