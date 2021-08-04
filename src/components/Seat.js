@@ -88,10 +88,19 @@ export function Seat({
         console.log(id, coordinates);
         console.log("develop");
         console.log(window.JFCustomWidget);
-        console.log("sendData", window.JFCustomWidget.sendData({valid: true, value: coordinates}));
+        console.log(
+          "sendData",
+          window.JFCustomWidget.sendData({
+            valid: true,
+            value: `x: ${coordinates.x}, y: ${coordinates.y}`,
+          })
+        );
         console.log("getSettings", window.JFCustomWidget.getWidgetSettings());
         console.log("setFrameSize", window.JFCustomWidget.setFrameSize(300));
-        console.log("makeWidgetRequired", window.JFCustomWidget.makeWidgetRequired());
+        console.log(
+          "makeWidgetRequired",
+          window.JFCustomWidget.makeWidgetRequired()
+        );
         console.log("getWidgetData", window.JFCustomWidget.getWidgetData());
       }}
       onDragCancel={() => {
