@@ -87,7 +87,12 @@ export function Seat({
         coordinates.y = translate.y / gridSize;
         console.log(id, coordinates);
         console.log("develop");
-        window.JFCustomWidget.sendData(coordinates);
+        console.log(window.JFCustomWidget);
+        console.log("sendData", window.JFCustomWidget.sendData(coordinates));
+        console.log("getSettings", window.JFCustomWidget.getWidgetSettings());
+        console.log("setFrameSize", window.JFCustomWidget.setFrameSize(300));
+        console.log("makeWidgetRequired", window.JFCustomWidget.makeWidgetRequired());
+        console.log("getWidgetData", window.JFCustomWidget.getWidgetData());
       }}
       onDragCancel={() => {
         setTranslate(({ initialTranslate }) => ({
