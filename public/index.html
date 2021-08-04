@@ -39,5 +39,15 @@
       To begin the development, run `npm start` or `yarn start`.
       To create a production bundle, use `npm run build` or `yarn build`.
     -->
+
+  <script type="text/javascript">
+    (function() {
+      var po = document.createElement('script'); po.type = 'text/javascript'; po.async = true;
+      po.src = '//js.jotform.com/JotFormCustomWidget.min.js?onload=onLoadCallback';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(po, s);
+    })();
+    console.log(document);
+    document.getElementById('externalFrame_key_9').style.height = '300px';
+  </script>
   </body>
 </html>
