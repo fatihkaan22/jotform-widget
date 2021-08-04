@@ -12,12 +12,12 @@
   align-items: center;
   justify-content: center;
   margin: 0 auto;
-  min-height: 54px;
+  /* min-height: 54px; */
   flex-shrink: 1;
   appearance: none;
   outline: none;
   border: 0;
-  padding: 8px 18px;
+  /* padding: 8px 18px; */
   background-color: #181a22;
   border-radius: 5px;
   box-shadow: var(--box-shadow);

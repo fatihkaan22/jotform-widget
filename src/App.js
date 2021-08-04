@@ -12,8 +12,16 @@ import {
   //   snapCenterToCursor,
 } from "@dnd-kit/modifiers";
 
+import { nanoid } from "nanoid";
+
 function App() {
-  const [gridSize, setGridSize] = useState(30);
+  const seats = [
+    { id: "seat-" + nanoid(), x: 0, y: 0 },
+    { id: "seat-" + nanoid(), x: 0, y: 3 },
+    { id: "seat-" + nanoid(), x: 3, y: 0 },
+    { id: "seat-" + nanoid(), x: 3, y: 3 },
+  ];
+  const [gridSize, setGridSize] = useState(40);
   const itemStyle = {
     marginTop: gridSize + 1,
     marginLeft: gridSize + 1,
@@ -22,26 +30,20 @@ function App() {
   };
   const snapToGrid = useMemo(() => createSnapModifier(gridSize), [gridSize]);
 
+  const seatList = seats.map((s) => (
+    <Seat
+      id={s.id}
+      coordinates={{ x: s.x, y: s.y }}
+      style={itemStyle}
+      modifiers={[snapToGrid]}
+      gridSize={gridSize}
+      key={s.id}
+    />
+  ));
+
   return (
     <>
-      <Seat
-        coordinates={{ x: 0, y: 0 }}
-        style={itemStyle}
-        modifiers={[snapToGrid]}
-        gridSize={gridSize}
-      />
-      <Seat
-        coordinates={{ x: 0, y: 3 }}
-        style={itemStyle}
-        modifiers={[snapToGrid]}
-        gridSize={gridSize}
-      />
-      <Seat
-        coordinates={{ x: 3, y: 0 }}
-        style={itemStyle}
-        modifiers={[snapToGrid]}
-        gridSize={gridSize}
-      />
+      {seatList}
       <Grid size={gridSize} onSizeChange={setGridSize} />
     </>
   );

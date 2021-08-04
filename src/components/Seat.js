@@ -25,6 +25,7 @@ import { Draggable } from "./Draggable";
 import { Wrapper } from "./Wrapper";
 
 export function Seat({
+  id,
   activationConstraint,
   modifiers,
   style,
@@ -82,6 +83,9 @@ export function Seat({
           };
         });
         setInitialWindowScroll(defaultCoordinates);
+        coordinates.x = translate.x / gridSize;
+        coordinates.y = translate.y / gridSize;
+        console.log(id, coordinates);
       }}
       onDragCancel={() => {
         setTranslate(({ initialTranslate }) => ({
