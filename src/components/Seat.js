@@ -86,6 +86,7 @@ export function Seat({
         coordinates.x = translate.x / gridSize;
         coordinates.y = translate.y / gridSize;
         console.log(id, coordinates);
+        JFCustomWidget.sendData(coordinates);
       }}
       onDragCancel={() => {
         setTranslate(({ initialTranslate }) => ({
