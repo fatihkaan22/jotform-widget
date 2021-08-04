@@ -1,24 +1,34 @@
-import logo from './logo.svg';
-import './App.css';
+import { useState, useMemo } from "react";
+
+import { Droppable } from "./components/Droppable";
+import { Seat } from "./components/Seat";
+import { Grid } from "./components/Grid";
+
+import {
+  createSnapModifier,
+  //   restrictToHorizontalAxis,
+  //   restrictToVerticalAxis,
+  //   restrictToWindowEdges,
+  //   snapCenterToCursor,
+} from "@dnd-kit/modifiers";
 
 function App() {
+  const [gridSize, setGridSize] = useState(30);
+  const itemStyle = {
+    marginTop: 11,
+    marginLeft: 11,
+    width: gridSize * 2 - 1,
+    height: gridSize * 2 - 1,
+  };
+  const snapToGrid = useMemo(() => createSnapModifier(gridSize), [gridSize]);
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <>
+      <Seat style={itemStyle} modifiers={[snapToGrid]} key={gridSize} />
+      <Seat style={itemStyle} modifiers={[snapToGrid]} key={gridSize} />
+      <Seat style={itemStyle} modifiers={[snapToGrid]} key={gridSize} />
+      <Grid size={gridSize} onSizeChange={setGridSize} />
+    </>
   );
 }
 
