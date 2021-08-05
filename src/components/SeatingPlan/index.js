@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect } from "react";
 
-import { Seat } from "../Seat";
+import { Seat } from "../Seat/Seat";
 import { Grid } from "../Grid";
 import { Droppable } from "../Droppable";
 import "./SeatingPlan.css";
@@ -19,7 +19,7 @@ import firebase from "firebase";
 import { useList } from "react-firebase-hooks/database";
 import UseAnimations from "react-useanimations";
 
-export function SeatingPlan() {
+export function SeatingPlan(props) {
   const user = firebase.auth().currentUser;
   const [seats, setSeats] = useState([]);
   //   const [snapshots, loading, error] = useList(
@@ -48,6 +48,7 @@ export function SeatingPlan() {
       gridSize={gridSize}
       key={s.id}
       deleteSeat={deleteSeat}
+      draggable={props.editable}
     />
   ));
 
@@ -90,13 +91,17 @@ export function SeatingPlan() {
 
   return (
     <>
-      <button className="add-button" onClick={handleAddButtonClick}>
-        Add
-      </button>
+      {props.editable && (
+        <div>
+          <button className="add-button" onClick={handleAddButtonClick}>
+            Add
+          </button>
+          <div className="delete">
+            <UseAnimations animation={trash} size={40} strokeColor="red" />
+          </div>
+        </div>
+      )}
 
-      <div className="delete">
-        <UseAnimations animation={trash} size={40} strokeColor="red" />
-      </div>
       {seatList}
       <Grid size={gridSize} onSizeChange={setGridSize} />
     </>

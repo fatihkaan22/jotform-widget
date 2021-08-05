@@ -21,11 +21,14 @@ import {
   //   snapCenterToCursor,
 } from "@dnd-kit/modifiers";
 
-import { Draggable } from "./Draggable";
-import { Wrapper } from "./Wrapper";
+import { Draggable } from "../Draggable";
+import { Wrapper } from "../Wrapper";
 
 import firebase from "firebase";
-import { Droppable } from "./Droppable";
+import { Droppable } from "../Droppable";
+import "./Seat.css";
+import UseAnimations from "react-useanimations";
+import radioButton from "react-useanimations/lib/radioButton";
 
 export function Seat({
   id,
@@ -35,6 +38,7 @@ export function Seat({
   gridSize,
   coordinates,
   deleteSeat,
+  draggable,
 }) {
   let defaultCoordinates = {
     x: 0,
@@ -108,15 +112,17 @@ export function Seat({
       modifiers={modifiers}
     >
       <Wrapper>
-        <DraggableItem
-          // axis={axis}
-          // label={label}
-          // handle={handle}
-          style={style}
-          translate={translate}
-        >
-          DRAG
-        </DraggableItem>
+        {draggable ? (
+          <DraggableItem
+            // axis={axis}
+            // label={label}
+            // handle={handle}
+            style={style}
+            translate={translate}
+          />
+        ) : (
+          <SelectableItem style={style} translate={translate} />
+        )}
       </Wrapper>
     </DndContext>
   );
@@ -139,6 +145,31 @@ function DraggableItem({ axis, label, style, translate, handle }) {
       axis={axis}
       {...attributes}
     />
+  );
+}
+
+function SelectableItem({ style, translate }) {
+  const [checked, setChecked] = useState(false);
+
+  const styleSelectable = {
+    "--translate-x": `${translate?.x ?? 0}px`,
+    "--translate-y": `${translate?.y ?? 0}px`,
+  };
+
+  if (checked) style = { ...style, backgroundColor: "#F45B69" };
+  return (
+    <div className="Selectable" style={styleSelectable}>
+      <button style={style}>
+        <UseAnimations
+          animation={radioButton}
+          onClick={() => setChecked(!checked)}
+          reverse={checked}
+          strokeColor="white"
+          size={40}
+          speed={2}
+        />
+      </button>
+    </div>
   );
 }
 

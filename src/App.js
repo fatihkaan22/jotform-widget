@@ -5,6 +5,8 @@ import { useAuthState } from "react-firebase-hooks/auth";
 import { SeatingPlan } from "./components/SeatingPlan";
 import { Droppable } from "./components/Droppable";
 
+import { BrowserRouter as Router, Switch, Route, Link } from "react-router-dom";
+
 firebase.initializeApp({
   apiKey: "AIzaSyDv_nMpzqPHatfTCJLAJCXayvxkg0nhW2Q",
   authDomain: "seating-plan-9d314.firebaseapp.com",
@@ -33,7 +35,29 @@ const auth = firebase.auth();
 
 function App() {
   const [user] = useAuthState(auth);
-  return <>{user ? <SeatingPlan /> : ""}</>;
+  return (
+    <Router>
+      <Switch>
+        <Route path="/controller">
+          {user ? <Controller /> : ""}
+        </Route>
+        <Route path="/preview">
+          {user ? <Preview /> : ""}
+        </Route>
+        <Route path="/">
+          {user ? <Preview /> : ""}
+        </Route>
+      </Switch>
+    </Router>
+  );
+}
+
+function Controller() {
+  return <SeatingPlan editable={true}/> 
+}
+
+function Preview() {
+  return <SeatingPlan editable={false} /> 
 }
 
 export default App;
