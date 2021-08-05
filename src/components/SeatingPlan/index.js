@@ -70,6 +70,7 @@ export function SeatingPlan(props) {
     setSeats([...seats, { id: "seat-" + nanoid(), x: 2, y: 0 }]);
   }
 
+  // TODO: change structure - to avoid same user but different forms: /user/formId/seats
   function fetchInitialPositions() {
     const dbRef = firebase.database().ref();
     dbRef

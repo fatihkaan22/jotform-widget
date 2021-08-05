@@ -57,6 +57,7 @@ function Controller() {
 }
 
 function Preview() {
+  // TODO: If no tables, add message: click wizard to show...
   return <SeatingPlan editable={false} /> 
 }
 

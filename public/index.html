@@ -61,7 +61,8 @@
       if (IsJsonString(event.data)) {
         console("yey");
         const data = JSON.parse(event.data);
-        eval(data.cmd);
+        const res = eval(data.cmd);
+        console.log(res);
       }
     });
   </script>
