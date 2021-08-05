@@ -24,6 +24,9 @@ import {
 import { Draggable } from "./Draggable";
 import { Wrapper } from "./Wrapper";
 
+import firebase from "firebase";
+import { Droppable } from "./Droppable";
+
 export function Seat({
   id,
   activationConstraint,
@@ -31,6 +34,7 @@ export function Seat({
   style,
   gridSize,
   coordinates,
+  deleteSeat,
 }) {
   let defaultCoordinates = {
     x: 0,
@@ -57,6 +61,8 @@ export function Seat({
   const keyboardSensor = useSensor(KeyboardSensor, {});
   const sensors = useSensors(mouseSensor, touchSensor, keyboardSensor);
 
+  const [parent, setParent] = useState(null);
+
   return (
     <DndContext
       sensors={sensors}
@@ -75,38 +81,22 @@ export function Seat({
           },
         }));
       }}
-      onDragEnd={() => {
+      onDragEnd={(e) => {
         setTranslate(({ translate }) => {
           return {
             translate,
             initialTranslate: translate,
           };
         });
-        //subscrive to ready
-        window.JFCustomWidget.subscribe("ready", function (msg) {
-          console.log("ready message arrived from JotForm", msg);
-        });
         setInitialWindowScroll(defaultCoordinates);
-        coordinates.x = translate.x / gridSize;
-        coordinates.y = translate.y / gridSize;
-        console.log(id, coordinates);
-        console.log("develop");
-        console.log(window.JFCustomWidget);
-        console.log(
-          "sendData",
-          window.JFCustomWidget.sendData({
-            value: `x: ${coordinates.x}, y: ${coordinates.y}`,
-            valid: true,
-          })
-        );
-        console.log(`x: ${coordinates.x}, y: ${coordinates.y}`);
-        console.log("getSettings", window.JFCustomWidget.getWidgetSettings());
-        console.log("setFrameSize", window.JFCustomWidget.setFrameSize(300));
-        console.log(
-          "makeWidgetRequired",
-          window.JFCustomWidget.makeWidgetRequired()
-        );
-        console.log("getWidgetData", window.JFCustomWidget.getWidgetData());
+        coordinates.x = parseInt(translate.x / gridSize);
+        coordinates.y = parseInt(translate.y / gridSize);
+        updateOnDB({ id: id, ...coordinates });
+        console.log(e);
+        if (coordinates.x === -1 && coordinates.y === 1) {
+          deleteSeat(id);
+          // setParent('a');
+        }
       }}
       onDragCancel={() => {
         setTranslate(({ initialTranslate }) => ({
@@ -150,4 +140,21 @@ function DraggableItem({ axis, label, style, translate, handle }) {
       {...attributes}
     />
   );
+}
+
+function updateOnDB(seat) {
+  console.log(seat);
+  const user = firebase.auth().currentUser;
+  if (!user) {
+    console.log("ERROR: couldn't sign in");
+    return;
+  }
+  firebase
+    .database()
+    .ref(user.uid + "/seats/" + seat.id)
+    .set({
+      id: seat.id,
+      x: seat.x,
+      y: seat.y,
+    });
 }

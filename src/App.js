@@ -1,52 +1,39 @@
 import { useState, useMemo } from "react";
 
+import firebase from "firebase";
+import { useAuthState } from "react-firebase-hooks/auth";
+import { SeatingPlan } from "./components/SeatingPlan";
 import { Droppable } from "./components/Droppable";
-import { Seat } from "./components/Seat";
-import { Grid } from "./components/Grid";
 
-import {
-  createSnapModifier,
-  //   restrictToHorizontalAxis,
-  //   restrictToVerticalAxis,
-  //   restrictToWindowEdges,
-  //   snapCenterToCursor,
-} from "@dnd-kit/modifiers";
+firebase.initializeApp({
+  apiKey: "AIzaSyDv_nMpzqPHatfTCJLAJCXayvxkg0nhW2Q",
+  authDomain: "seating-plan-9d314.firebaseapp.com",
+  databaseURL:
+    "https://seating-plan-9d314-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "seating-plan-9d314",
+  storageBucket: "seating-plan-9d314.appspot.com",
+  messagingSenderId: "161499233562",
+  appId: "1:161499233562:web:dea857442a2b82282940a3",
+  measurementId: "G-PVSQVFBHDN",
+});
 
-import { nanoid } from "nanoid";
+firebase
+  .auth()
+  .signInAnonymously()
+  .then(() => {
+    console.log("signed in");
+  })
+  .catch((error) => {
+    var errorCode = error.code;
+    var errorMessage = error.message;
+    console.log("sing in error");
+  });
+
+const auth = firebase.auth();
 
 function App() {
-  const seats = [
-    { id: "seat-" + nanoid(), x: 0, y: 0 },
-    { id: "seat-" + nanoid(), x: 0, y: 3 },
-    { id: "seat-" + nanoid(), x: 3, y: 0 },
-    { id: "seat-" + nanoid(), x: 3, y: 3 },
-  ];
-  const [gridSize, setGridSize] = useState(40);
-  const itemStyle = {
-    marginTop: gridSize + 1,
-    marginLeft: gridSize + 1,
-    width: gridSize * 2 - 1,
-    height: gridSize * 2 - 1,
-  };
-  const snapToGrid = useMemo(() => createSnapModifier(gridSize), [gridSize]);
-
-  const seatList = seats.map((s) => (
-    <Seat
-      id={s.id}
-      coordinates={{ x: s.x, y: s.y }}
-      style={itemStyle}
-      modifiers={[snapToGrid]}
-      gridSize={gridSize}
-      key={s.id}
-    />
-  ));
-
-  return (
-    <>
-      {seatList}
-      <Grid size={gridSize} onSizeChange={setGridSize} />
-    </>
-  );
+  const [user] = useAuthState(auth);
+  return <>{user ? <SeatingPlan /> : ""}</>;
 }
 
 export default App;
