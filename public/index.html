@@ -45,25 +45,8 @@
       po.src = '//js.jotform.com/JotFormCustomWidget.min.js?onload=onLoadCallback';
       var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(po, s);
     })();
-    // TODO: for debugging purposes: remove
-    function IsJsonString(str) {
-      try {
-        JSON.parse(str);
-      } catch (e) {
-        return false;
-      }
-      return true;
-    }
-    window.addEventListener("message", (event) => {
-      console.log("message received");
-      console.log('event.source', event.source);
-      console.log('event.data', event.data);
-      if (IsJsonString(event.data)) {
-        console("yey");
-        const data = JSON.parse(event.data);
-        const res = eval(data.cmd);
-        window.console.log(res);
-      }
+    JFCustomWidget.subscribe("ready", function () {
+      console.log("ready - triggered");
     });
   </script>
 </body>
