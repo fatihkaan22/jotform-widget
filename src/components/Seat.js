@@ -82,6 +82,10 @@ export function Seat({
             initialTranslate: translate,
           };
         });
+        //subscrive to ready
+        window.JFCustomWidget.subscribe("ready", function (msg) {
+          console.log("ready message arrived from JotForm", msg);
+        });
         setInitialWindowScroll(defaultCoordinates);
         coordinates.x = translate.x / gridSize;
         coordinates.y = translate.y / gridSize;
@@ -91,10 +95,11 @@ export function Seat({
         console.log(
           "sendData",
           window.JFCustomWidget.sendData({
-            valid: true,
             value: `x: ${coordinates.x}, y: ${coordinates.y}`,
+            valid: true,
           })
         );
+        console.log(`x: ${coordinates.x}, y: ${coordinates.y}`);
         console.log("getSettings", window.JFCustomWidget.getWidgetSettings());
         console.log("setFrameSize", window.JFCustomWidget.setFrameSize(300));
         console.log(
