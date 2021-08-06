@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 
+
 import {
   DndContext,
   useDraggable,
@@ -123,7 +124,7 @@ export function Seat({
             type={type}
           />
         ) : (
-          <SelectableItem style={style} translate={translate} />
+          <SelectableItem style={style} type={type} translate={translate} />
         )}
       </Wrapper>
     </DndContext>
@@ -151,7 +152,7 @@ function DraggableItem({ axis, label, style, translate, handle, type }) {
   );
 }
 
-function SelectableItem({ style, translate }) {
+function SelectableItem({ style, translate, type }) {
   const [checked, setChecked] = useState(false);
 
   const styleSelectable = {
@@ -162,15 +163,16 @@ function SelectableItem({ style, translate }) {
   if (checked) style = { ...style, backgroundColor: "#F45B69" };
   return (
     <div className="Selectable" style={styleSelectable}>
-      <button style={style}>
-        <UseAnimations
+      <button style={style} onClick={() => setChecked(!checked)}>
+        {type.component}
+        {/* <UseAnimations
           animation={radioButton}
           onClick={() => setChecked(!checked)}
           reverse={checked}
           strokeColor="white"
           size={40}
           speed={2}
-        />
+        /> */}
       </button>
     </div>
   );
