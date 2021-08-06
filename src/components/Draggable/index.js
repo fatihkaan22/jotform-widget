@@ -34,7 +34,7 @@ export const Draggable = forwardRef(function Draggable(
         ref={ref}
         aria-label="Draggable"
         data-cypress="draggable-item"
-        // {...(handle ? {} : listeners)}
+        {...(handle ? {} : listeners)}
         tabIndex={handle ? -1 : undefined}
         {...props}
       >
