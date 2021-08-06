@@ -11,3 +11,9 @@
   height: 40px;
   z-index: 99;
 }
+
+.menu {
+  position: absolute;
+  width: 100%;
+  margin: 10px;
+}

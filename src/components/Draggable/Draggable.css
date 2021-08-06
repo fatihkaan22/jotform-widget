@@ -18,13 +18,14 @@
   outline: none;
   border: 0;
   /* padding: 8px 18px; */
-  background-color: #181a22;
+  /* background-color: #181a22; */
   border-radius: 5px;
   box-shadow: var(--box-shadow);
   transform: scale(var(--scale, 1));
   transition: transform 250ms cubic-bezier(0.18, 0.67, 0.6, 1.22),
     box-shadow 300ms ease;
 }
+
 
 /* .Draggable .dragging {
   z-index: 1;

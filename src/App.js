@@ -4,8 +4,9 @@ import firebase from "firebase";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { SeatingPlan } from "./components/SeatingPlan";
 import { Droppable } from "./components/Droppable";
-
 import { BrowserRouter as Router, Switch, Route, Link } from "react-router-dom";
+import "semantic-ui-css/semantic.min.css";
+import { Dropdown, Container, Icon } from "semantic-ui-react";
 
 firebase.initializeApp({
   apiKey: "AIzaSyDv_nMpzqPHatfTCJLAJCXayvxkg0nhW2Q",
@@ -38,27 +39,25 @@ function App() {
   return (
     <Router>
       <Switch>
-        <Route path="/controller">
-          {user ? <Controller /> : ""}
-        </Route>
-        <Route path="/preview">
-          {user ? <Preview /> : ""}
-        </Route>
-        <Route path="/">
-          {user ? <Preview /> : ""}
-        </Route>
+        <Route path="/controller">{user ? <Controller /> : ""}</Route>
+        <Route path="/preview">{user ? <Preview /> : ""}</Route>
+        <Route path="/">{user ? <Preview /> : ""}</Route>
       </Switch>
     </Router>
   );
 }
 
 function Controller() {
-  return <SeatingPlan editable={true}/> 
+  return (
+    <>
+      <SeatingPlan editable={true} />
+    </>
+  );
 }
 
 function Preview() {
   // TODO: If no tables, add message: click wizard to show...
-  return <SeatingPlan editable={false} /> 
+  return <SeatingPlan editable={false} />;
 }
 
 export default App;

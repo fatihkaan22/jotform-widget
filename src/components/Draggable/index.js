@@ -10,6 +10,7 @@ export const Draggable = forwardRef(function Draggable(
     label,
     listeners,
     translate,
+    type,
     ...props
   },
   ref
@@ -31,12 +32,16 @@ export const Draggable = forwardRef(function Draggable(
     >
       <button
         ref={ref}
-        {...props}
         aria-label="Draggable"
         data-cypress="draggable-item"
-        {...(handle ? {} : listeners)}
+        // {...(handle ? {} : listeners)}
         tabIndex={handle ? -1 : undefined}
+        {...props}
       >
+        {/* TODO: type name change */}
+
+        {type.component}
+
         {/* {axis === Axis.Vertical
           ? draggableVertical
           : axis === Axis.Horizontal

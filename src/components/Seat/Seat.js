@@ -39,6 +39,7 @@ export function Seat({
   coordinates,
   deleteSeat,
   draggable,
+  type,
 }) {
   let defaultCoordinates = {
     x: 0,
@@ -119,6 +120,7 @@ export function Seat({
             // handle={handle}
             style={style}
             translate={translate}
+            type={type}
           />
         ) : (
           <SelectableItem style={style} translate={translate} />
@@ -128,7 +130,7 @@ export function Seat({
   );
 }
 
-function DraggableItem({ axis, label, style, translate, handle }) {
+function DraggableItem({ axis, label, style, translate, handle, type }) {
   const { attributes, isDragging, listeners, setNodeRef } = useDraggable({
     id: "draggable",
   });
@@ -143,6 +145,7 @@ function DraggableItem({ axis, label, style, translate, handle }) {
       style={style}
       translate={translate}
       axis={axis}
+      type={type}
       {...attributes}
     />
   );
