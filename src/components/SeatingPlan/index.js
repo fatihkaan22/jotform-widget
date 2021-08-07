@@ -8,6 +8,7 @@ import trash from "react-useanimations/lib/trash";
 
 import {
   createSnapModifier,
+  restrictToWindowEdges,
   //   restrictToHorizontalAxis,
   //   restrictToVerticalAxis,
   //   restrictToWindowEdges,
@@ -47,8 +48,8 @@ import { run } from "axe-core";
 export const SeatingPlan = (props) => {
   const [gridSize, setGridSize] = useState(20);
   const itemStyle = {
-    marginTop: gridSize + 1,
-    marginLeft: gridSize + 1,
+    // marginTop: gridSize + 1,
+    // marginLeft: gridSize + 1,
     width: gridSize * 2 - 1,
     height: gridSize * 2 - 1,
   };
@@ -83,7 +84,7 @@ export const SeatingPlan = (props) => {
       id={seat.id}
       coordinates={{ x: seat.x, y: seat.y }}
       style={itemStyle}
-      modifiers={[snapToGrid]}
+      modifiers={[snapToGrid, restrictToWindowEdges]}
       gridSize={gridSize}
       key={seat.id}
       deleteSeat={deleteSeat}
@@ -108,7 +109,7 @@ export const SeatingPlan = (props) => {
   }
 
   function handleAddButtonClick() {
-    setSeats([...seats, { id: "seat-" + nanoid(), x: 2, y: 0 }]);
+    setSeats([...seats, { id: "seat-" + nanoid(), x: 0, y: 0 }]);
   }
 
   // TODO: change structure - to avoid same user but different forms: /user/formId/seats
@@ -134,8 +135,8 @@ export const SeatingPlan = (props) => {
   return (
     <>
       {props.editable ? (
-        <div className="menu">
-          <GridUI columns={4}>
+        <div className="menu-edit">
+          <GridUI columns={2}>
             <GridUI.Column>
               <Form>
                 <Form.Field>
@@ -162,7 +163,7 @@ export const SeatingPlan = (props) => {
           </div> */}
         </div>
       ) : (
-        <div className="menu">
+        <div className="menu-preview">
           <GridUI columns={4}>
             <GridUI.Column width={4}>
               <Form>

@@ -1,4 +1,5 @@
 import React, { forwardRef } from "react";
+import { getTranslateStyle } from "../Seat/utils";
 import "./Draggable.css";
 
 export const Draggable = forwardRef(function Draggable(
@@ -15,6 +16,10 @@ export const Draggable = forwardRef(function Draggable(
   },
   ref
 ) {
+
+  const draggableStyle = getTranslateStyle(translate);
+
+
   return (
     // styles.Draggable,
     // dragging && styles.dragging,
@@ -25,10 +30,7 @@ export const Draggable = forwardRef(function Draggable(
         ${dragOverlay ? "dragOverlay" : ""} 
         ${dragging ? "dragging" : ""}
 `}
-      style={{
-        "--translate-x": `${translate?.x ?? 0}px`,
-        "--translate-y": `${translate?.y ?? 0}px`,
-      }}
+      style={draggableStyle}
     >
       <button
         ref={ref}

@@ -30,6 +30,8 @@ import "./Seat.css";
 import UseAnimations from "react-useanimations";
 import radioButton from "react-useanimations/lib/radioButton";
 
+import { getTranslateStyle } from "./utils";
+
 export function Seat({
   id,
   activationConstraint,
@@ -65,6 +67,7 @@ export function Seat({
   });
   const keyboardSensor = useSensor(KeyboardSensor, {});
   const sensors = useSensors(mouseSensor, touchSensor, keyboardSensor);
+  const [parent, setParent] = useState(null);
 
   return (
     <DndContext
@@ -84,7 +87,10 @@ export function Seat({
           },
         }));
       }}
-      onDragEnd={(e) => {
+      onDragEnd={(over) => {
+        console.log(over);
+        setParent(over ? over.id : null);
+
         setTranslate(({ translate }) => {
           return {
             translate,
@@ -95,8 +101,7 @@ export function Seat({
         coordinates.x = parseInt(translate.x / gridSize);
         coordinates.y = parseInt(translate.y / gridSize);
         updateOnDB({ id: id, ...coordinates });
-        console.log(e);
-        if (coordinates.x === -1 && coordinates.y === 1) {
+        if (coordinates.x < 0 || coordinates.y < 0) {
           deleteSeat(id);
         }
       }}
@@ -123,6 +128,7 @@ export function Seat({
           <SelectableItem style={style} type={type} translate={translate} />
         )}
       </Wrapper>
+      {/* <Droppable>HERE</Droppable> */}
     </DndContext>
   );
 }
@@ -151,10 +157,7 @@ function DraggableItem({ axis, label, style, translate, handle, type }) {
 function SelectableItem({ style, translate, type }) {
   const [checked, setChecked] = useState(false);
 
-  const styleSelectable = {
-    "--translate-x": `${translate?.x ?? 0}px`,
-    "--translate-y": `${translate?.y ?? 0}px`,
-  };
+  const styleSelectable = getTranslateStyle(translate);
 
   if (checked) style = { ...style, backgroundColor: "#F45B69" };
   return (
