@@ -1,4 +1,6 @@
-.Draggable {
+/* TODO: comes from: <link> */
+
+.Selectable {
   position: absolute;
   display: flex;
   flex-direction: column;
@@ -7,7 +9,7 @@
   transform: translate3d(var(--translate-x, 0), var(--translate-y, 0), 0);
 }
 
-.Draggable button {
+.Selectable button {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -22,45 +24,11 @@
   border-radius: 5px;
   box-shadow: var(--box-shadow);
   transform: scale(var(--scale, 1));
-  cursor: grab;
   transition: transform 250ms cubic-bezier(0.18, 0.67, 0.6, 1.22),
     box-shadow 300ms ease;
-  z-index: 1;
 }
 
-.dragging button {
-  --scale: 1.06;
-  --box-shadow: -1px 0 15px 0 rgba(34, 33, 81, 0.01),
-    0px 15px 15px 0 rgba(34, 33, 81, 0.25);
-}
 
-.dragging {
-  z-index: 2;
-}
-
-.dragging * {
-  cursor: grabbing;
-}
-
-.dragOverlay button {
-  animation: pop 250ms cubic-bezier(0.18, 0.67, 0.6, 1.22);
-}
-
-@keyframes pulse {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-@keyframes pop {
-  0% {
-    transform: scale(1);
-  }
-  100% {
-    transform: scale(var(--scale));
-    box-shadow: var(--box-shadow);
-  }
+.newly-added {
+  background-color: red;
 }

@@ -21,8 +21,16 @@ import {
   //   snapCenterToCursor,
 } from "@dnd-kit/modifiers";
 
-import { Draggable } from "./Draggable";
-import { Wrapper } from "./Wrapper";
+import { Draggable } from "../Draggable";
+import { Wrapper } from "../Wrapper";
+
+import firebase from "firebase";
+import { Droppable } from "../Droppable";
+import "./Seat.css";
+import UseAnimations from "react-useanimations";
+import radioButton from "react-useanimations/lib/radioButton";
+
+import { getTranslateStyle } from "./utils";
 
 export function Seat({
   id,
@@ -31,6 +39,9 @@ export function Seat({
   style,
   gridSize,
   coordinates,
+  deleteSeat,
+  draggable,
+  type,
 }) {
   let defaultCoordinates = {
     x: 0,
@@ -56,6 +67,7 @@ export function Seat({
   });
   const keyboardSensor = useSensor(KeyboardSensor, {});
   const sensors = useSensors(mouseSensor, touchSensor, keyboardSensor);
+  const [parent, setParent] = useState(null);
 
   return (
     <DndContext
@@ -75,7 +87,10 @@ export function Seat({
           },
         }));
       }}
-      onDragEnd={() => {
+      onDragEnd={(over) => {
+        console.log(over);
+        setParent(over ? over.id : null);
+
         setTranslate(({ translate }) => {
           return {
             translate,
@@ -83,9 +98,12 @@ export function Seat({
           };
         });
         setInitialWindowScroll(defaultCoordinates);
-        coordinates.x = translate.x / gridSize;
-        coordinates.y = translate.y / gridSize;
-        console.log(id, coordinates);
+        coordinates.x = parseInt(translate.x / gridSize);
+        coordinates.y = parseInt(translate.y / gridSize);
+        updateOnDB({ id: id, ...coordinates });
+        if (coordinates.x < 0 || coordinates.y < 0) {
+          deleteSeat(id);
+        }
       }}
       onDragCancel={() => {
         setTranslate(({ initialTranslate }) => ({
@@ -97,21 +115,25 @@ export function Seat({
       modifiers={modifiers}
     >
       <Wrapper>
-        <DraggableItem
-          // axis={axis}
-          // label={label}
-          // handle={handle}
-          style={style}
-          translate={translate}
-        >
-          DRAG
-        </DraggableItem>
+        {draggable ? (
+          <DraggableItem
+            // axis={axis}
+            // label={label}
+            // handle={handle}
+            style={style}
+            translate={translate}
+            type={type}
+          />
+        ) : (
+          <SelectableItem style={style} type={type} translate={translate} />
+        )}
       </Wrapper>
+      {/* <Droppable>HERE</Droppable> */}
     </DndContext>
   );
 }
 
-function DraggableItem({ axis, label, style, translate, handle }) {
+function DraggableItem({ axis, label, style, translate, handle, type }) {
   const { attributes, isDragging, listeners, setNodeRef } = useDraggable({
     id: "draggable",
   });
@@ -126,7 +148,48 @@ function DraggableItem({ axis, label, style, translate, handle }) {
       style={style}
       translate={translate}
       axis={axis}
+      type={type}
       {...attributes}
     />
   );
+}
+
+function SelectableItem({ style, translate, type }) {
+  const [checked, setChecked] = useState(false);
+
+  const styleSelectable = getTranslateStyle(translate);
+
+  if (checked) style = { ...style, backgroundColor: "#F45B69" };
+  return (
+    <div className="Selectable" style={styleSelectable}>
+      <button style={style} onClick={() => setChecked(!checked)}>
+        {type.component}
+        {/* <UseAnimations
+          animation={radioButton}
+          onClick={() => setChecked(!checked)}
+          reverse={checked}
+          strokeColor="white"
+          size={40}
+          speed={2}
+        /> */}
+      </button>
+    </div>
+  );
+}
+
+function updateOnDB(seat) {
+  console.log(seat);
+  const user = firebase.auth().currentUser;
+  if (!user) {
+    console.log("ERROR: couldn't sign in");
+    return;
+  }
+  firebase
+    .database()
+    .ref(user.uid + "/seats/" + seat.id)
+    .set({
+      id: seat.id,
+      x: seat.x,
+      y: seat.y,
+    });
 }

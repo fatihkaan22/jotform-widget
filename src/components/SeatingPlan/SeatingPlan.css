@@ -1,0 +1,32 @@
+.add-button {
+  position: absolute;
+  width: 40px;
+  height: 40px;
+}
+
+.delete {
+  position: absolute;
+  top: 40px;
+  width: 40px;
+  height: 40px;
+  z-index: 99;
+}
+
+/* TODO: set width according to GridUI */
+.menu-preview {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  max-width: 900px;
+  margin: 10px;
+}
+
+.menu-edit {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  max-width: 300px;
+  margin: 10px;
+}

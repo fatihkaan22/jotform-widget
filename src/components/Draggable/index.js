@@ -1,4 +1,5 @@
 import React, { forwardRef } from "react";
+import { getTranslateStyle } from "../Seat/utils";
 import "./Draggable.css";
 
 export const Draggable = forwardRef(function Draggable(
@@ -10,10 +11,15 @@ export const Draggable = forwardRef(function Draggable(
     label,
     listeners,
     translate,
+    type,
     ...props
   },
   ref
 ) {
+
+  const draggableStyle = getTranslateStyle(translate);
+
+
   return (
     // styles.Draggable,
     // dragging && styles.dragging,
@@ -24,19 +30,20 @@ export const Draggable = forwardRef(function Draggable(
         ${dragOverlay ? "dragOverlay" : ""} 
         ${dragging ? "dragging" : ""}
 `}
-      style={{
-        "--translate-x": `${translate?.x ?? 0}px`,
-        "--translate-y": `${translate?.y ?? 0}px`,
-      }}
+      style={draggableStyle}
     >
       <button
         ref={ref}
-        {...props}
         aria-label="Draggable"
         data-cypress="draggable-item"
         {...(handle ? {} : listeners)}
         tabIndex={handle ? -1 : undefined}
+        {...props}
       >
+        {/* TODO: type name change */}
+
+        {type.component}
+
         {/* {axis === Axis.Vertical
           ? draggableVertical
           : axis === Axis.Horizontal
