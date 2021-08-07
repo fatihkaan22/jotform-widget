@@ -99,8 +99,6 @@ export function Seat({
         if (coordinates.x === -1 && coordinates.y === 1) {
           deleteSeat(id);
         }
-        console.log(window.JFCustomWidget);
-        window.JFCustomWidget.sendReady({ type: "ready" });
       }}
       onDragCancel={() => {
         setTranslate(({ initialTranslate }) => ({

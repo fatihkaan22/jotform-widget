@@ -12,8 +12,12 @@
   z-index: 99;
 }
 
+/* TODO: set width according to GridUI */
 .menu {
   position: absolute;
+  top: 0;
+  left: 0;
   width: 100%;
+  max-width: 900px;
   margin: 10px;
 }

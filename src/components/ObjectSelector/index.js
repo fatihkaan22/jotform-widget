@@ -17,7 +17,6 @@ export function ObjectSelector(props) {
   return (
     <>
       <Dropdown
-        // style={{ width: "100px" }}
         placeholder="Select Object"
         fluid
         selection

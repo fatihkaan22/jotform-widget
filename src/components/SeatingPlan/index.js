@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useCallback } from "react";
 
 import { Seat } from "../Seat/Seat";
 import { Grid } from "../Grid";
@@ -16,10 +16,19 @@ import {
 
 import { nanoid } from "nanoid";
 import firebase from "firebase";
-import { useList } from "react-firebase-hooks/database";
+import { useObjectVal } from "react-firebase-hooks/database";
 import UseAnimations from "react-useanimations";
 import { ObjectSelector } from "../ObjectSelector";
-import { Input, Grid as GridUI, Button, Icon } from "semantic-ui-react";
+import {
+  Input,
+  Grid as GridUI,
+  Button,
+  Icon,
+  Header,
+  Form,
+  ButtonGroup,
+  Menu,
+} from "semantic-ui-react";
 // import SemanticDatepicker from "react-semantic-ui-datepickers";
 // import "react-semantic-ui-datepickers/dist/react-semantic-ui-datepickers.css";
 
@@ -33,6 +42,7 @@ import {
 import { ReactComponent as IconTableCircle } from "../../assets/table_circle.svg";
 import { ReactComponent as IconTableSquare } from "../../assets/table_square.svg";
 import { ReactComponent as IconArmchair } from "../../assets/armchair.svg";
+import { run } from "axe-core";
 
 export const SeatingPlan = (props) => {
   const [gridSize, setGridSize] = useState(20);
@@ -82,11 +92,7 @@ export const SeatingPlan = (props) => {
     />
   ));
 
-  // const seatTypesKeys = Object.keys(seatTypesMap);
-  // console.log(seatTypesKeys);
-
-  // const [seatType, setSeatType] = useState(seatTypes[0].text);
-
+  // TODO: move functions to util.js
   function deleteSeat(seatId) {
     const updatedSeats = seats.filter((s) => seatId !== s.id);
     setSeats(updatedSeats);
@@ -129,16 +135,26 @@ export const SeatingPlan = (props) => {
     <>
       {props.editable ? (
         <div className="menu">
-          <GridUI>
-            <GridUI.Column width={2}>
-              <ObjectSelector
-                options={seatTypesMap}
-                value={selectedType}
-                onChange={setSelectedType}
-              />
+          <GridUI columns={4}>
+            <GridUI.Column>
+              <Form>
+                <Form.Field>
+                  <label>Select type and add</label>
+                  <ObjectSelector
+                    options={seatTypesMap}
+                    value={selectedType}
+                    onChange={setSelectedType}
+                  />
+                </Form.Field>
+              </Form>
             </GridUI.Column>
-            <GridUI.Column width={1}>
-              <Button icon="add" onClick={handleAddButtonClick} />
+            <GridUI.Column floated="left" verticalAlign="bottom">
+              <Form>
+                <Form.Field>
+                  {/* <label>Add</label> */}
+                  <Button icon="add" onClick={handleAddButtonClick} />
+                </Form.Field>
+              </Form>
             </GridUI.Column>
           </GridUI>
           {/* <div className="delete">
@@ -147,12 +163,42 @@ export const SeatingPlan = (props) => {
         </div>
       ) : (
         <div className="menu">
-          <GridUI>
-            <GridUI.Column>
-              <DateInput />
+          <GridUI columns={4}>
+            <GridUI.Column width={4}>
+              <Form>
+                <Form.Field>
+                  <label>Date</label>
+                  <DateInput />
+                </Form.Field>
+              </Form>
             </GridUI.Column>
-            <GridUI.Column>
-              <TimeInput />
+            <GridUI.Column width={4}>
+              <Form>
+                <Form.Field>
+                  <label>Time</label>
+                  <TimeInput />
+                </Form.Field>
+              </Form>
+            </GridUI.Column>
+            <GridUI.Column width={2}>
+              <Form>
+                <Form.Field>
+                  <label>People</label>
+                  {/* <ButtonGroup size="tiny">
+                      <Button icon="plus" />
+                      <Button icon="minus" />
+                    </ButtonGroup> */}
+                  {/* <Input action={{ icon: "plus" }} /> */}
+                  <Input type="text" action>
+                    <input />
+                    <Button icon="minus" />
+                    <Button icon="plus" />
+                  </Input>
+                </Form.Field>
+              </Form>
+            </GridUI.Column>
+            <GridUI.Column floated="right" width={4} verticalAlign="bottom">
+              <Button color="red" content="Check Availability" />
             </GridUI.Column>
           </GridUI>
         </div>
