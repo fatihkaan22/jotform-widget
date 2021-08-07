@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 
-
 import {
   DndContext,
   useDraggable,
@@ -67,8 +66,6 @@ export function Seat({
   const keyboardSensor = useSensor(KeyboardSensor, {});
   const sensors = useSensors(mouseSensor, touchSensor, keyboardSensor);
 
-  const [parent, setParent] = useState(null);
-
   return (
     <DndContext
       sensors={sensors}
@@ -101,8 +98,8 @@ export function Seat({
         console.log(e);
         if (coordinates.x === -1 && coordinates.y === 1) {
           deleteSeat(id);
-          // setParent('a');
         }
+        window.JFCustomWidget.sendReady();
       }}
       onDragCancel={() => {
         setTranslate(({ initialTranslate }) => ({
