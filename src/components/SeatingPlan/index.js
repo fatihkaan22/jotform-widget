@@ -120,19 +120,18 @@ export const SeatingPlan = (props) => {
                 </Form.Field>
               </Form>
             </GridUI.Column>
-            <GridUI.Column floated="left" verticalAlign="bottom">
-              <Form>
-                <Form.Field>
-                  {/* <label>Add</label> */}
-                  <Button icon="add" onClick={handleAddButtonClick} />
-                  <MultiAddPopup onSubmit={handleMultiAddButtonClick} />
-
-                  {/* <Button
-                    icon="th"
-                    onClick={() => handleMultiAddButtonClick(3, 4)}
-                  /> */}
-                </Form.Field>
-              </Form>
+            <GridUI.Column verticalAlign="bottom">
+              <Popup
+                content={"Add object"}
+                position="bottom center"
+                trigger={<Button icon="add" onClick={handleAddButtonClick} />}
+              />
+              <MultiAddPopup onSubmit={handleMultiAddButtonClick} />
+              <Popup
+                content="To remove objects move outside of the grid."
+                position="bottom center"
+                trigger={<Button icon="trash" />}
+              />
             </GridUI.Column>
           </GridUI>
           {/* <div className="delete">
