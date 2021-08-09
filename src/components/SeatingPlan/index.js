@@ -2,17 +2,23 @@ import { useState, useMemo, useEffect } from "react";
 import { Seat } from "./Seat";
 import { Grid } from "../Grid";
 import "./style.css";
-import { deleteSeatFromDB, updateSeatTypeOnDB, fetchUserData } from "./utils";
+import {
+  deleteSeatFromDB,
+  updateSeatTypeOnDB,
+  fetchUserData,
+  getMultiSeats,
+} from "./utils";
 import trash from "react-useanimations/lib/trash";
 import { createSnapModifier, restrictToWindowEdges } from "@dnd-kit/modifiers";
 import { nanoid } from "nanoid";
 import UseAnimations from "react-useanimations";
 import { Dropdown } from "../Dropdown";
-import { Input, Grid as GridUI, Button, Form } from "semantic-ui-react";
+import { Input, Grid as GridUI, Button, Form, Popup } from "semantic-ui-react";
 import { DateInput, TimeInput } from "semantic-ui-calendar-react";
 import { ReactComponent as IconTableCircle } from "../../assets/table_circle.svg";
 import { ReactComponent as IconTableSquare } from "../../assets/table_square.svg";
 import { ReactComponent as IconArmchair } from "../../assets/armchair.svg";
+import { MultiAddPopup } from "./Seat/MultiAddPopup";
 
 export const SeatingPlan = (props) => {
   const [gridSize, setGridSize] = useState(20);
@@ -56,19 +62,18 @@ export const SeatingPlan = (props) => {
     setSeats([...seats, { id: "seat-" + nanoid(), x: 0, y: 0 }]);
   };
 
-  const handleMultiAddButtonClick = (rows, columns) => {
-    const newSeats = [];
-    let horizontalSpacing = 1;
-    let verticalSpacing = 2;
-    for (let i = 0; i < rows; i++) {
-      for (let j = 0; j < columns; j++) {
-        newSeats.push({
-          id: "seat-" + nanoid(),
-          x: i * 2 + i * horizontalSpacing,
-          y: j * 2 + j * verticalSpacing,
-        });
-      }
-    }
+  const handleMultiAddButtonClick = (
+    rows,
+    columns,
+    horizontalSpacing = 1,
+    verticalSpacing = 1
+  ) => {
+    const newSeats = getMultiSeats(
+      rows,
+      columns,
+      horizontalSpacing,
+      verticalSpacing
+    );
 
     setSeats([...seats, ...newSeats]);
   };
@@ -120,10 +125,12 @@ export const SeatingPlan = (props) => {
                 <Form.Field>
                   {/* <label>Add</label> */}
                   <Button icon="add" onClick={handleAddButtonClick} />
-                  <Button
+                  <MultiAddPopup onSubmit={handleMultiAddButtonClick} />
+
+                  {/* <Button
                     icon="th"
                     onClick={() => handleMultiAddButtonClick(3, 4)}
-                  />
+                  /> */}
                 </Form.Field>
               </Form>
             </GridUI.Column>

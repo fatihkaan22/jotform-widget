@@ -31,6 +31,10 @@
   /* margin: 10px; */
 }
 
+.multi-add-popup {
+  width: 180px;
+}
+
 /* TODO: matches better with jotform's edit panel */
 /* .menu-edit label {
   color: white !important;

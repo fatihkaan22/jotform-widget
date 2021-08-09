@@ -1,4 +1,5 @@
 import firebase from "firebase";
+import { nanoid } from "nanoid";
 
 // TODO: change structure - to avoid same user but different forms: /user/formId/seats
 export const fetchUserData = async () => {
@@ -23,7 +24,6 @@ export const fetchUserData = async () => {
     });
   return { seatsFromDB, seatTypeFromDB };
 };
-
 
 export const deleteSeatFromDB = (seatId) => {
   const user = firebase.auth().currentUser;
@@ -51,6 +51,29 @@ export const updateSeatTypeOnDB = (seatType) => {
     .set(seatType);
 };
 
+export const getMultiSeats = (
+  rows,
+  columns,
+  horizontalSpacing = 1,
+  verticalSpacing = 1
+) => {
+  if (rows < 1 || columns < 1) {
+    console.log("ERROR: rows or columns < 1");
+    return;
+  }
+  const start = { x: 1, y: 1 }; // first element
+  const newSeats = [];
+  for (let i = 0; i < columns; i++) {
+    for (let j = 0; j < rows; j++) {
+      newSeats.push({
+        id: "seat-" + nanoid(),
+        x: i * 2 + i * verticalSpacing + start.x,
+        y: j * 2 + j * horizontalSpacing + start.y,
+      });
+    }
+  }
+  return newSeats;
+};
 
 // export const fetchInitialPositions = async () => {
 //   const user = firebase.auth().currentUser;
