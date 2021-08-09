@@ -2,14 +2,14 @@ import firebase from "firebase";
 
 export const getTranslateStyle = (translate) => {
   // const shift = { x: 11, y: 81 };
-  const shift = { x: 1, y: 81 };
+  const shift = { x: 1, y: 71 };
   return {
     "--translate-x": `${translate?.x + shift.x ?? 0}px`,
     "--translate-y": `${translate?.y + shift.y ?? 0}px`,
   };
 };
 
-export const updateOnDB = (seat) => {
+export const updateSeatPositionsOnDB = (seat) => {
   console.log(seat);
   const user = firebase.auth().currentUser;
   if (!user) {

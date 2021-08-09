@@ -30,3 +30,8 @@
   max-width: 300px;
   /* margin: 10px; */
 }
+
+/* TODO: matches better with jotform's edit panel */
+/* .menu-edit label {
+  color: white !important;
+} */

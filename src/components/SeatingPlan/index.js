@@ -1,13 +1,17 @@
-import { useState, useMemo, useEffect, useCallback } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Seat } from "./Seat";
 import { Grid } from "../Grid";
 import "./style.css";
-import { fetchInitialPositions, deleteSeatFromDB } from "./utils";
+import {
+  deleteSeatFromDB,
+  updateSeatTypeOnDB,
+  fetchUserData,
+} from "./utils";
 import trash from "react-useanimations/lib/trash";
 import { createSnapModifier, restrictToWindowEdges } from "@dnd-kit/modifiers";
 import { nanoid } from "nanoid";
 import UseAnimations from "react-useanimations";
-import { ObjectSelector } from "../ObjectSelector";
+import { Dropdown } from "../Dropdown";
 import { Input, Grid as GridUI, Button, Form } from "semantic-ui-react";
 import { DateInput, TimeInput } from "semantic-ui-calendar-react";
 import { ReactComponent as IconTableCircle } from "../../assets/table_circle.svg";
@@ -45,16 +49,28 @@ export const SeatingPlan = (props) => {
 
   useEffect(() => {
     const getSeats = async () => {
-      const seatsFromDB = await fetchInitialPositions();
+      // const seatsFromDB = await fetchInitialPositions();
+      const { seatsFromDB, seatTypeFromDB } = await fetchUserData();
       setSeats(seatsFromDB);
+      // const seatTypeFromDB = await fetchSeatType();
+      setSelectedType(seatTypeFromDB);
     };
     getSeats();
   }, []);
+
+  const handleAddButtonClick = () => {
+    setSeats([...seats, { id: "seat-" + nanoid(), x: 0, y: 0 }]);
+  };
 
   const deleteSeat = (seatId) => {
     const updatedSeats = seats.filter((s) => seatId !== s.id);
     setSeats(updatedSeats);
     deleteSeatFromDB(seatId);
+  };
+
+  const handleDropdownChange = (selectedType) => {
+    setSelectedType(selectedType);
+    updateSeatTypeOnDB(selectedType);
   };
 
   const seatList = seats.map((seat) => (
@@ -71,10 +87,6 @@ export const SeatingPlan = (props) => {
     />
   ));
 
-  const handleAddButtonClick = () => {
-    setSeats([...seats, { id: "seat-" + nanoid(), x: 0, y: 0 }]);
-  };
-
   return (
     <>
       {props.editable ? (
@@ -84,10 +96,10 @@ export const SeatingPlan = (props) => {
               <Form>
                 <Form.Field>
                   <label>Select type and add</label>
-                  <ObjectSelector
+                  <Dropdown
                     options={seatTypesMap}
                     value={selectedType}
-                    onChange={setSelectedType}
+                    onChange={handleDropdownChange}
                   />
                 </Form.Field>
               </Form>
@@ -96,6 +108,7 @@ export const SeatingPlan = (props) => {
               <Form>
                 <Form.Field>
                   {/* <label>Add</label> */}
+                  <Button icon="add" onClick={handleAddButtonClick} />
                   <Button icon="add" onClick={handleAddButtonClick} />
                 </Form.Field>
               </Form>

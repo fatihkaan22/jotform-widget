@@ -17,7 +17,7 @@ import "./style.css";
 import UseAnimations from "react-useanimations";
 import radioButton from "react-useanimations/lib/radioButton";
 
-import { getTranslateStyle, updateOnDB } from "./utils";
+import { getTranslateStyle, updateSeatPositionsOnDB } from "./utils";
 
 export const Seat = ({
   id,
@@ -49,46 +49,54 @@ export const Seat = ({
   const keyboardSensor = useSensor(KeyboardSensor, {});
   const sensors = useSensors(mouseSensor, touchSensor, keyboardSensor);
 
+  const handleOnDragStart = () => {
+    setInitialWindowScroll({
+      x: window.scrollX,
+      y: window.scrollY,
+    });
+  };
+
+  const handleOnDragMove = ({ delta }) => {
+    setTranslate(({ initialTranslate }) => ({
+      initialTranslate,
+      translate: {
+        x: initialTranslate.x + delta.x - initialWindowScroll.x,
+        y: initialTranslate.y + delta.y - initialWindowScroll.y,
+      },
+    }));
+  };
+
+  const handleOnDragEnd = (over) => {
+    setTranslate(({ translate }) => {
+      return {
+        translate,
+        initialTranslate: translate,
+      };
+    });
+    setInitialWindowScroll(translate, defaultCoordinates);
+    coordinates.x = parseInt(translate.x / gridSize);
+    coordinates.y = parseInt(translate.y / gridSize);
+    updateSeatPositionsOnDB({ id: id, ...coordinates });
+    if (coordinates.x < 0 || coordinates.y < 0) {
+      deleteSeat(id);
+    }
+  };
+
+  const handleOnDragCancel = () => {
+    setTranslate(({ initialTranslate }) => ({
+      translate: initialTranslate,
+      initialTranslate,
+    }));
+    setInitialWindowScroll(defaultCoordinates);
+  };
+
   return (
     <DndContext
       sensors={sensors}
-      onDragStart={() => {
-        setInitialWindowScroll({
-          x: window.scrollX,
-          y: window.scrollY,
-        });
-      }}
-      onDragMove={({ delta }) => {
-        setTranslate(({ initialTranslate }) => ({
-          initialTranslate,
-          translate: {
-            x: initialTranslate.x + delta.x - initialWindowScroll.x,
-            y: initialTranslate.y + delta.y - initialWindowScroll.y,
-          },
-        }));
-      }}
-      onDragEnd={(over) => {
-        setTranslate(({ translate }) => {
-          return {
-            translate,
-            initialTranslate: translate,
-          };
-        });
-        setInitialWindowScroll(translate, defaultCoordinates);
-        coordinates.x = parseInt(translate.x / gridSize);
-        coordinates.y = parseInt(translate.y / gridSize);
-        updateOnDB({ id: id, ...coordinates });
-        if (coordinates.x < 0 || coordinates.y < 0) {
-          deleteSeat(id);
-        }
-      }}
-      onDragCancel={() => {
-        setTranslate(({ initialTranslate }) => ({
-          translate: initialTranslate,
-          initialTranslate,
-        }));
-        setInitialWindowScroll(defaultCoordinates);
-      }}
+      onDragStart={handleOnDragStart}
+      onDragMove={handleOnDragMove}
+      onDragEnd={handleOnDragEnd}
+      onDragCancel={handleOnDragCancel}
       modifiers={modifiers}
     >
       <Wrapper>
@@ -109,9 +117,9 @@ export const Seat = ({
       </Wrapper>
     </DndContext>
   );
-}
+};
 
-const DraggableItem = ({ label, style, translate, innerComponent })=> {
+const DraggableItem = ({ label, style, translate, innerComponent }) => {
   const { attributes, isDragging, listeners, setNodeRef } = useDraggable({
     id: "draggable",
   });
@@ -128,7 +136,7 @@ const DraggableItem = ({ label, style, translate, innerComponent })=> {
       {...attributes}
     />
   );
-}
+};
 
 const SelectableItem = ({ style, translate, innerComponent }) => {
   const [checked, setChecked] = useState(false);
@@ -142,4 +150,4 @@ const SelectableItem = ({ style, translate, innerComponent }) => {
       </button>
     </div>
   );
-}
+};
