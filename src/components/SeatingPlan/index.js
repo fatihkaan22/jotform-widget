@@ -2,11 +2,7 @@ import { useState, useMemo, useEffect } from "react";
 import { Seat } from "./Seat";
 import { Grid } from "../Grid";
 import "./style.css";
-import {
-  deleteSeatFromDB,
-  updateSeatTypeOnDB,
-  fetchUserData,
-} from "./utils";
+import { deleteSeatFromDB, updateSeatTypeOnDB, fetchUserData } from "./utils";
 import trash from "react-useanimations/lib/trash";
 import { createSnapModifier, restrictToWindowEdges } from "@dnd-kit/modifiers";
 import { nanoid } from "nanoid";
@@ -49,17 +45,32 @@ export const SeatingPlan = (props) => {
 
   useEffect(() => {
     const getSeats = async () => {
-      // const seatsFromDB = await fetchInitialPositions();
       const { seatsFromDB, seatTypeFromDB } = await fetchUserData();
-      setSeats(seatsFromDB);
-      // const seatTypeFromDB = await fetchSeatType();
-      setSelectedType(seatTypeFromDB);
+      setSeats(seatsFromDB ? seatsFromDB : []);
+      setSelectedType(seatTypeFromDB ? seatTypeFromDB : defaultType);
     };
     getSeats();
   }, []);
 
   const handleAddButtonClick = () => {
     setSeats([...seats, { id: "seat-" + nanoid(), x: 0, y: 0 }]);
+  };
+
+  const handleMultiAddButtonClick = (rows, columns) => {
+    const newSeats = [];
+    let horizontalSpacing = 1;
+    let verticalSpacing = 2;
+    for (let i = 0; i < rows; i++) {
+      for (let j = 0; j < columns; j++) {
+        newSeats.push({
+          id: "seat-" + nanoid(),
+          x: i * 2 + i * horizontalSpacing,
+          y: j * 2 + j * verticalSpacing,
+        });
+      }
+    }
+
+    setSeats([...seats, ...newSeats]);
   };
 
   const deleteSeat = (seatId) => {
@@ -109,7 +120,10 @@ export const SeatingPlan = (props) => {
                 <Form.Field>
                   {/* <label>Add</label> */}
                   <Button icon="add" onClick={handleAddButtonClick} />
-                  <Button icon="add" onClick={handleAddButtonClick} />
+                  <Button
+                    icon="th"
+                    onClick={() => handleMultiAddButtonClick(3, 4)}
+                  />
                 </Form.Field>
               </Form>
             </GridUI.Column>
