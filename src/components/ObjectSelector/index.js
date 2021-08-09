@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Dropdown } from "semantic-ui-react";
 
-export function ObjectSelector(props) {
+export const ObjectSelector = (props) => {
   const options = Object.entries(props.options).map(([key, value]) => {
     return {
       text: value.text,
@@ -17,7 +17,6 @@ export function ObjectSelector(props) {
   return (
     <>
       <Dropdown
-        placeholder="Select Object"
         fluid
         selection
         options={options}
@@ -26,4 +25,4 @@ export function ObjectSelector(props) {
       />
     </>
   );
-}
+};

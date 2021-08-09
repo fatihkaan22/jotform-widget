@@ -7,32 +7,19 @@ import {
   MouseSensor,
   TouchSensor,
   KeyboardSensor,
-  Translate,
-  PointerActivationConstraint,
-  Modifiers,
   useSensors,
 } from "@dnd-kit/core";
 
-import {
-  createSnapModifier,
-  //   restrictToHorizontalAxis,
-  //   restrictToVerticalAxis,
-  //   restrictToWindowEdges,
-  //   snapCenterToCursor,
-} from "@dnd-kit/modifiers";
+import { Draggable } from "../../Draggable";
+import { Wrapper } from "../../Wrapper";
 
-import { Draggable } from "../Draggable";
-import { Wrapper } from "../Wrapper";
-
-import firebase from "firebase";
-import { Droppable } from "../Droppable";
-import "./Seat.css";
+import "./style.css";
 import UseAnimations from "react-useanimations";
 import radioButton from "react-useanimations/lib/radioButton";
 
-import { getTranslateStyle } from "./utils";
+import { getTranslateStyle, updateOnDB } from "./utils";
 
-export function Seat({
+export const Seat = ({
   id,
   activationConstraint,
   modifiers,
@@ -41,18 +28,12 @@ export function Seat({
   coordinates,
   deleteSeat,
   draggable,
-  type,
-}) {
-  let defaultCoordinates = {
-    x: 0,
-    y: 0,
+  seatType,
+}) => {
+  const defaultCoordinates = {
+    x: coordinates ? coordinates.x * gridSize : 0,
+    y: coordinates ? coordinates.y * gridSize : 0,
   };
-  if (coordinates) {
-    defaultCoordinates = {
-      x: coordinates.x * gridSize,
-      y: coordinates.y * gridSize,
-    };
-  }
   const [{ translate }, setTranslate] = useState({
     initialTranslate: defaultCoordinates,
     translate: defaultCoordinates,
@@ -67,7 +48,6 @@ export function Seat({
   });
   const keyboardSensor = useSensor(KeyboardSensor, {});
   const sensors = useSensors(mouseSensor, touchSensor, keyboardSensor);
-  const [parent, setParent] = useState(null);
 
   return (
     <DndContext
@@ -88,16 +68,13 @@ export function Seat({
         }));
       }}
       onDragEnd={(over) => {
-        console.log(over);
-        setParent(over ? over.id : null);
-
         setTranslate(({ translate }) => {
           return {
             translate,
             initialTranslate: translate,
           };
         });
-        setInitialWindowScroll(defaultCoordinates);
+        setInitialWindowScroll(translate, defaultCoordinates);
         coordinates.x = parseInt(translate.x / gridSize);
         coordinates.y = parseInt(translate.y / gridSize);
         updateOnDB({ id: id, ...coordinates });
@@ -117,23 +94,24 @@ export function Seat({
       <Wrapper>
         {draggable ? (
           <DraggableItem
-            // axis={axis}
             // label={label}
-            // handle={handle}
             style={style}
             translate={translate}
-            type={type}
+            innerComponent={seatType}
           />
         ) : (
-          <SelectableItem style={style} type={type} translate={translate} />
+          <SelectableItem
+            style={style}
+            innerComponent={seatType}
+            translate={translate}
+          />
         )}
       </Wrapper>
-      {/* <Droppable>HERE</Droppable> */}
     </DndContext>
   );
 }
 
-function DraggableItem({ axis, label, style, translate, handle, type }) {
+const DraggableItem = ({ label, style, translate, innerComponent })=> {
   const { attributes, isDragging, listeners, setNodeRef } = useDraggable({
     id: "draggable",
   });
@@ -142,54 +120,26 @@ function DraggableItem({ axis, label, style, translate, handle, type }) {
     <Draggable
       ref={setNodeRef}
       dragging={isDragging}
-      handle={handle}
       label={label}
       listeners={listeners}
       style={style}
       translate={translate}
-      axis={axis}
-      type={type}
+      innerComponent={innerComponent}
       {...attributes}
     />
   );
 }
 
-function SelectableItem({ style, translate, type }) {
+const SelectableItem = ({ style, translate, innerComponent }) => {
   const [checked, setChecked] = useState(false);
-
   const styleSelectable = getTranslateStyle(translate);
-
   if (checked) style = { ...style, backgroundColor: "#F45B69" };
+
   return (
     <div className="Selectable" style={styleSelectable}>
       <button style={style} onClick={() => setChecked(!checked)}>
-        {type.component}
-        {/* <UseAnimations
-          animation={radioButton}
-          onClick={() => setChecked(!checked)}
-          reverse={checked}
-          strokeColor="white"
-          size={40}
-          speed={2}
-        /> */}
+        {innerComponent.component}
       </button>
     </div>
   );
-}
-
-function updateOnDB(seat) {
-  console.log(seat);
-  const user = firebase.auth().currentUser;
-  if (!user) {
-    console.log("ERROR: couldn't sign in");
-    return;
-  }
-  firebase
-    .database()
-    .ref(user.uid + "/seats/" + seat.id)
-    .set({
-      id: seat.id,
-      x: seat.x,
-      y: seat.y,
-    });
 }

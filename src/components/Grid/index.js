@@ -1,7 +1,7 @@
 import React from "react";
-import "./Grid.css"
+import "./style.css"
 
-export function Grid({ size }) {
+export const Grid = ({ size }) => {
   return (
     <div
       className="Grid"

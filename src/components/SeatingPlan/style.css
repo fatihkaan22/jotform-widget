@@ -19,7 +19,7 @@
   left: 0;
   width: 100%;
   max-width: 900px;
-  margin: 10px;
+  /* margin: 10px; */
 }
 
 .menu-edit {
@@ -28,5 +28,5 @@
   left: 0;
   width: 100%;
   max-width: 300px;
-  margin: 10px;
+  /* margin: 10px; */
 }

@@ -1,12 +1,8 @@
-import { useState, useMemo } from "react";
-
 import firebase from "firebase";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { SeatingPlan } from "./components/SeatingPlan";
-import { Droppable } from "./components/Droppable";
-import { BrowserRouter as Router, Switch, Route, Link } from "react-router-dom";
+import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 import "semantic-ui-css/semantic.min.css";
-import { Dropdown, Container, Icon } from "semantic-ui-react";
 
 firebase.initializeApp({
   apiKey: "AIzaSyDv_nMpzqPHatfTCJLAJCXayvxkg0nhW2Q",
@@ -20,44 +16,39 @@ firebase.initializeApp({
   measurementId: "G-PVSQVFBHDN",
 });
 
-firebase
-  .auth()
-  .signInAnonymously()
-  .then(() => {
-    console.log("signed in");
-  })
-  .catch((error) => {
-    var errorCode = error.code;
-    var errorMessage = error.message;
-    console.log("sing in error");
-  });
+const App = () => {
+  firebase
+    .auth()
+    .signInAnonymously()
+    .then(() => {
+      console.log("signed in");
+    })
+    .catch((error) => {
+      var errorCode = error.code;
+      var errorMessage = error.message;
+      console.log("sing in error");
+    });
 
-const auth = firebase.auth();
-
-function App() {
+  const auth = firebase.auth();
   const [user] = useAuthState(auth);
   return (
     <Router>
       <Switch>
-        <Route path="/controller">{user ? <Controller /> : ""}</Route>
-        <Route path="/preview">{user ? <Preview /> : ""}</Route>
-        <Route path="/">{user ? <Preview /> : ""}</Route>
+        <Route path="/edit">{user ? <EditPage /> : ""}</Route>
+        <Route path="/preview">{user ? <PreviewPage /> : ""}</Route>
+        <Route path="/">{user ? <PreviewPage /> : ""}</Route>
       </Switch>
     </Router>
   );
-}
+};
 
-function Controller() {
-  return (
-    <>
-      <SeatingPlan editable={true} />
-    </>
-  );
-}
+const EditPage = () => {
+  return <SeatingPlan editable={true} />;
+};
 
-function Preview() {
+const PreviewPage = () => {
   // TODO: If no tables, add message: click wizard to show...
   return <SeatingPlan editable={false} />;
-}
+};
 
 export default App;

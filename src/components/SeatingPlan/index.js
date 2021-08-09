@@ -1,49 +1,18 @@
 import { useState, useMemo, useEffect, useCallback } from "react";
-
-import { Seat } from "../Seat/Seat";
+import { Seat } from "./Seat";
 import { Grid } from "../Grid";
-import { Droppable } from "../Droppable";
-import "./SeatingPlan.css";
+import "./style.css";
+import { fetchInitialPositions, deleteSeatFromDB } from "./utils";
 import trash from "react-useanimations/lib/trash";
-
-import {
-  createSnapModifier,
-  restrictToWindowEdges,
-  //   restrictToHorizontalAxis,
-  //   restrictToVerticalAxis,
-  //   restrictToWindowEdges,
-  //   snapCenterToCursor,
-} from "@dnd-kit/modifiers";
-
+import { createSnapModifier, restrictToWindowEdges } from "@dnd-kit/modifiers";
 import { nanoid } from "nanoid";
-import firebase from "firebase";
-import { useObjectVal } from "react-firebase-hooks/database";
 import UseAnimations from "react-useanimations";
 import { ObjectSelector } from "../ObjectSelector";
-import {
-  Input,
-  Grid as GridUI,
-  Button,
-  Icon,
-  Header,
-  Form,
-  ButtonGroup,
-  Menu,
-} from "semantic-ui-react";
-// import SemanticDatepicker from "react-semantic-ui-datepickers";
-// import "react-semantic-ui-datepickers/dist/react-semantic-ui-datepickers.css";
-
-import {
-  DateInput,
-  TimeInput,
-  DateTimeInput,
-  DatesRangeInput,
-} from "semantic-ui-calendar-react";
-
+import { Input, Grid as GridUI, Button, Form } from "semantic-ui-react";
+import { DateInput, TimeInput } from "semantic-ui-calendar-react";
 import { ReactComponent as IconTableCircle } from "../../assets/table_circle.svg";
 import { ReactComponent as IconTableSquare } from "../../assets/table_square.svg";
 import { ReactComponent as IconArmchair } from "../../assets/armchair.svg";
-import { run } from "axe-core";
 
 export const SeatingPlan = (props) => {
   const [gridSize, setGridSize] = useState(20);
@@ -69,15 +38,24 @@ export const SeatingPlan = (props) => {
     },
   };
 
-  const user = firebase.auth().currentUser;
   const [seats, setSeats] = useState([]);
   const defaultType = Object.keys(seatTypesMap)[0];
   const [selectedType, setSelectedType] = useState(defaultType);
   const snapToGrid = useMemo(() => createSnapModifier(gridSize), [gridSize]);
 
   useEffect(() => {
-    fetchInitialPositions();
+    const getSeats = async () => {
+      const seatsFromDB = await fetchInitialPositions();
+      setSeats(seatsFromDB);
+    };
+    getSeats();
   }, []);
+
+  const deleteSeat = (seatId) => {
+    const updatedSeats = seats.filter((s) => seatId !== s.id);
+    setSeats(updatedSeats);
+    deleteSeatFromDB(seatId);
+  };
 
   const seatList = seats.map((seat) => (
     <Seat
@@ -89,48 +67,13 @@ export const SeatingPlan = (props) => {
       key={seat.id}
       deleteSeat={deleteSeat}
       draggable={props.editable}
-      type={seatTypesMap[selectedType]}
+      seatType={seatTypesMap[selectedType]}
     />
   ));
 
-  // TODO: move functions to util.js
-  function deleteSeat(seatId) {
-    const updatedSeats = seats.filter((s) => seatId !== s.id);
-    setSeats(updatedSeats);
-    const user = firebase.auth().currentUser;
-    if (!user) {
-      console.log("ERROR: couldn't sign in");
-      return;
-    }
-    firebase
-      .database()
-      .ref(user.uid + "/seats/" + seatId)
-      .set({});
-  }
-
-  function handleAddButtonClick() {
+  const handleAddButtonClick = () => {
     setSeats([...seats, { id: "seat-" + nanoid(), x: 0, y: 0 }]);
-  }
-
-  // TODO: change structure - to avoid same user but different forms: /user/formId/seats
-  function fetchInitialPositions() {
-    const dbRef = firebase.database().ref();
-    dbRef
-      .child(user.uid)
-      .child("seats")
-      .get()
-      .then((snapshot) => {
-        if (snapshot.exists()) {
-          const updatedSeats = Object.values(snapshot.val());
-          setSeats(updatedSeats);
-        } else {
-          console.log("No data available");
-        }
-      })
-      .catch((error) => {
-        console.error(error);
-      });
-  }
+  };
 
   return (
     <>
@@ -185,11 +128,6 @@ export const SeatingPlan = (props) => {
               <Form>
                 <Form.Field>
                   <label>People</label>
-                  {/* <ButtonGroup size="tiny">
-                      <Button icon="plus" />
-                      <Button icon="minus" />
-                    </ButtonGroup> */}
-                  {/* <Input action={{ icon: "plus" }} /> */}
                   <Input type="text" action>
                     <input />
                     <Button icon="minus" />
