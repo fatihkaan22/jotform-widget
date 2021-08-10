@@ -1,5 +1,6 @@
 import firebase from "firebase";
 import { nanoid } from "nanoid";
+import { PEOPLE } from "../../constants/input";
 
 // TODO: change structure - to avoid same user but different forms: /user/formId/seats
 export const fetchUserData = async () => {
@@ -73,6 +74,14 @@ export const getMultiSeats = (
     }
   }
   return newSeats;
+};
+
+export const isPeopleMin = (value) => {
+  return value === PEOPLE.MIN;
+};
+
+export const isPeopleMax = (value) => {
+  return value === PEOPLE.MAX;
 };
 
 // export const fetchInitialPositions = async () => {

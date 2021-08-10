@@ -1,12 +1,13 @@
 import { useState } from "react";
 import { Input, Grid as GridUI, Button, Form, Popup } from "semantic-ui-react";
+import { MULTI_ADD } from "../../../constants/input";
 
 export const MultiAddPopup = ({ onSubmit }) => {
   const [state, setState] = useState({
     row: 1,
     col: 1,
-    horizontalSpacing: 1,
-    verticalSpacing: 1,
+    horizontalSpacing: MULTI_ADD.DEFAULT_HORIZONTAL_SPACING,
+    verticalSpacing: MULTI_ADD.DEFAULT_VERTICAL_SPACING,
     spacingVisible: false,
   });
 

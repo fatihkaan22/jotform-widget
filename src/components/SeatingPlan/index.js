@@ -7,53 +7,33 @@ import {
   updateSeatTypeOnDB,
   fetchUserData,
   getMultiSeats,
+  isPeopleMin,
+  isPeopleMax,
 } from "./utils";
 import { createSnapModifier, restrictToWindowEdges } from "@dnd-kit/modifiers";
 import { nanoid } from "nanoid";
 import { Dropdown } from "../Dropdown";
 import { Input, Grid as GridUI, Button, Form, Popup } from "semantic-ui-react";
-import { DateInput, TimeInput } from "semantic-ui-calendar-react";
-import { ReactComponent as IconTableCircle } from "../../assets/table_circle.svg";
-import { ReactComponent as IconTableSquare } from "../../assets/table_square.svg";
-import { ReactComponent as IconArmchair } from "../../assets/armchair.svg";
-import { ReactComponent as IconCircle } from "../../assets/circle.svg";
-import { ReactComponent as IconSquare } from "../../assets/square.svg";
+import {
+  DateInput,
+  TimeInput,
+  DatesRangeInput,
+} from "semantic-ui-calendar-react";
 import { MultiAddPopup } from "./Seat/MultiAddPopup";
+import { GRID, MULTI_ADD, PEOPLE } from "../../constants/input";
+import SEAT_TYPES_MAP from "../../constants/icons";
 
 export const SeatingPlan = (props) => {
-  const [gridSize, setGridSize] = useState(20);
+  const [gridSize, setGridSize] = useState(GRID.SIZE);
   const itemStyle = {
     // marginTop: gridSize + 1,
     // marginLeft: gridSize + 1,
-    width: gridSize * 2 - 1,
-    height: gridSize * 2 - 1,
-  };
-
-  const seatTypesMap = {
-    squareTable: {
-      component: <IconTableSquare />,
-      text: "Square Table",
-    },
-    circleTable: {
-      component: <IconTableCircle />,
-      text: "Circular Table",
-    },
-    armchair: {
-      component: <IconArmchair />,
-      text: "Armchair",
-    },
-    circle: {
-      component: <IconCircle />,
-      text: "Circle",
-    },
-    square: {
-      component: <IconSquare />,
-      text: "Square",
-    },
+    width: gridSize * GRID.ITEM_WIDTH - 1,
+    height: gridSize * GRID.ITEM_HEIGHT - 1,
   };
 
   const [seats, setSeats] = useState([]);
-  const defaultType = Object.keys(seatTypesMap)[0];
+  const defaultType = Object.keys(SEAT_TYPES_MAP)[0];
   const [selectedType, setSelectedType] = useState(defaultType);
   const snapToGrid = useMemo(() => createSnapModifier(gridSize), [gridSize]);
 
@@ -73,8 +53,8 @@ export const SeatingPlan = (props) => {
   const handleMultiAddButtonClick = (
     rows,
     columns,
-    horizontalSpacing = 1,
-    verticalSpacing = 1
+    horizontalSpacing,
+    verticalSpacing
   ) => {
     const newSeats = getMultiSeats(
       rows,
@@ -107,9 +87,35 @@ export const SeatingPlan = (props) => {
       key={seat.id}
       deleteSeat={deleteSeat}
       draggable={props.editable}
-      seatType={seatTypesMap[selectedType]}
+      seatType={SEAT_TYPES_MAP[selectedType]}
     />
   ));
+
+  const [state, setState] = useState({
+    date: "",
+    time: "",
+    people: PEOPLE.DEFAULT,
+  });
+
+  const handleChange = (event, { name, value }) => {
+    if (state.hasOwnProperty(name)) {
+      // TODO: why not?
+      // setState({ [name]: value });
+      setState({ ...state, [name]: value });
+    }
+  };
+
+  const handlePeopleDecrement = (event) => {
+    if (!isPeopleMin(state.people)) {
+      setState({ ...state, people: state.people - 1 });
+    }
+  };
+
+  const handlePeopleIncrement = (event) => {
+    if (!isPeopleMax(state.people)) {
+      setState({ ...state, people: state.people + 1 });
+    }
+  };
 
   return (
     <>
@@ -121,7 +127,7 @@ export const SeatingPlan = (props) => {
                 <Form.Field>
                   <label>Select type and add</label>
                   <Dropdown
-                    options={seatTypesMap}
+                    options={SEAT_TYPES_MAP}
                     value={selectedType}
                     onChange={handleDropdownChange}
                   />
@@ -150,7 +156,11 @@ export const SeatingPlan = (props) => {
               <Form>
                 <Form.Field>
                   <label>Date</label>
-                  <DateInput />
+                  <DateInput
+                    name="date"
+                    value={state.date}
+                    onChange={handleChange}
+                  />
                 </Form.Field>
               </Form>
             </GridUI.Column>
@@ -158,7 +168,12 @@ export const SeatingPlan = (props) => {
               <Form>
                 <Form.Field>
                   <label>Time</label>
-                  <TimeInput />
+                  <TimeInput
+                    name="time"
+                    value={state.time}
+                    onChange={handleChange}
+                    disableMinute
+                  />
                 </Form.Field>
               </Form>
             </GridUI.Column>
@@ -166,10 +181,17 @@ export const SeatingPlan = (props) => {
               <Form>
                 <Form.Field>
                   <label>People</label>
-                  <Input type="text" action>
+                  <Input
+                    value={state.people}
+                    type="number"
+                    className="no-spinner"
+                    min={PEOPLE.MIN}
+                    max={PEOPLE.MAX}
+                    action
+                  >
                     <input />
-                    <Button icon="minus" />
-                    <Button icon="plus" />
+                    <Button icon="minus" onClick={handlePeopleDecrement} />
+                    <Button icon="plus" onClick={handlePeopleIncrement} />
                   </Input>
                 </Form.Field>
               </Form>
