@@ -22,8 +22,11 @@ export const Seat = ({
   gridSize,
   coordinates,
   deleteSeat,
+  selectSeat,
+  unselectSeat,
   draggable,
   seatType,
+  reserved,
 }) => {
   const defaultCoordinates = {
     x: coordinates ? coordinates.x * gridSize : 0,
@@ -104,9 +107,13 @@ export const Seat = ({
           />
         ) : (
           <SelectableItem
+            id={id}
             style={style}
             innerComponent={seatType}
             translate={translate}
+            selectSeat={selectSeat}
+            unselectSeat={unselectSeat}
+            disabled={reserved}
           />
         )}
       </Wrapper>

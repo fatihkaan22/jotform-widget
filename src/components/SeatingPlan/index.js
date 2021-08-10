@@ -10,6 +10,8 @@ import {
   isPeopleMin,
   isPeopleMax,
   getCurrentDate,
+  fetchReservedSeats,
+  reserveSeat,
 } from "./utils";
 import { createSnapModifier, restrictToWindowEdges } from "@dnd-kit/modifiers";
 import { nanoid } from "nanoid";
@@ -21,7 +23,7 @@ import {
   DatesRangeInput,
 } from "semantic-ui-calendar-react";
 import { MultiAddPopup } from "./Seat/MultiAddPopup";
-import { GRID, MULTI_ADD, PEOPLE } from "../../constants/input";
+import { GRID, PEOPLE } from "../../constants/input";
 import SEAT_TYPES_MAP from "../../constants/icons";
 
 export const SeatingPlan = (props) => {
@@ -36,6 +38,8 @@ export const SeatingPlan = (props) => {
   const [seats, setSeats] = useState([]);
   const defaultType = Object.keys(SEAT_TYPES_MAP)[0];
   const [selectedType, setSelectedType] = useState(defaultType);
+  const [selectedSeats, setSelectedSeats] = useState(new Set());
+  const [reservedSeats, setReservedSeats] = useState([]);
   const snapToGrid = useMemo(() => createSnapModifier(gridSize), [gridSize]);
 
   useEffect(() => {
@@ -68,7 +72,7 @@ export const SeatingPlan = (props) => {
   };
 
   const deleteSeat = (seatId) => {
-    const updatedSeats = seats.filter((s) => seatId !== s.id);
+    const updatedSeats = seats.filter((seat) => seatId !== seat.id);
     setSeats(updatedSeats);
     deleteSeatFromDB(seatId);
   };
@@ -76,6 +80,15 @@ export const SeatingPlan = (props) => {
   const handleDropdownChange = (selectedType) => {
     setSelectedType(selectedType);
     updateSeatTypeOnDB(selectedType);
+  };
+
+  const selectSeat = (seatId) => {
+    setSelectedSeats(new Set([...selectedSeats, seatId]));
+  };
+
+  const unselectSeat = (seatId) => {
+    const updatedSeats = [...selectedSeats].filter((id) => seatId !== id);
+    setSelectedSeats(new Set([...updatedSeats]));
   };
 
   const seatList = seats.map((seat) => (
@@ -87,8 +100,11 @@ export const SeatingPlan = (props) => {
       gridSize={gridSize}
       key={seat.id}
       deleteSeat={deleteSeat}
+      selectSeat={selectSeat}
+      unselectSeat={unselectSeat}
       draggable={props.editable}
       seatType={SEAT_TYPES_MAP[selectedType]}
+      reserved={reservedSeats.includes(seat.id)}
     />
   ));
 
@@ -100,8 +116,6 @@ export const SeatingPlan = (props) => {
 
   const handleChange = (event, { name, value }) => {
     if (state.hasOwnProperty(name)) {
-      // TODO: why not?
-      // setState({ [name]: value });
       setState({ ...state, [name]: value });
     }
   };
@@ -116,6 +130,35 @@ export const SeatingPlan = (props) => {
     if (!isPeopleMax(state.people)) {
       setState({ ...state, people: state.people + 1 });
     }
+  };
+
+  const handleCheckAvailability = (event) => {
+    if (!state.date || !state.time || !state.people) {
+      console.log("ERROR: empty fields");
+      return;
+    }
+    const getReserved = async () => {
+      const reservedFromBD = await fetchReservedSeats(state.date, state.time);
+      setReservedSeats(reservedFromBD);
+      reservedFromBD.forEach((seatId) => unselectSeat(seatId));
+    };
+    getReserved();
+  };
+
+  const handleUp = (event) => {
+    if (
+      !state.date ||
+      !state.time ||
+      !state.people ||
+      !selectedSeats ||
+      selectedSeats.size == 0
+    ) {
+      console.log("ERROR: empty fields");
+      return;
+    }
+    reserveSeat(state, selectedSeats);
+    // TODO: doesn't unselect elements, why?
+    setSelectedSeats(new Set());
   };
 
   return (
@@ -163,7 +206,6 @@ export const SeatingPlan = (props) => {
                     onChange={handleChange}
                     minDate={getCurrentDate()}
                     // maxDate={TODO}
-
                   />
                 </Form.Field>
               </Form>
@@ -201,7 +243,12 @@ export const SeatingPlan = (props) => {
               </Form>
             </GridUI.Column>
             <GridUI.Column floated="right" width={4} verticalAlign="bottom">
-              <Button color="red" content="Check Availability" />
+              <Button
+                color="red"
+                content="Check Availability"
+                onClick={handleCheckAvailability}
+              />
+              <Button icon="angle up" onClick={handleUp} />
             </GridUI.Column>
           </GridUI>
         </div>

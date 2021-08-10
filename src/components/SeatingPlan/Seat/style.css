@@ -32,3 +32,8 @@
 .selected {
   background-color: #a3e635;
 }
+
+.disabledSeat {
+  background-color: red !important;
+}
+
