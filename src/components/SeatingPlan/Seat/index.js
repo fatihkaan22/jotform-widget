@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-
 import {
   DndContext,
   useDraggable,
@@ -9,15 +8,11 @@ import {
   KeyboardSensor,
   useSensors,
 } from "@dnd-kit/core";
-
-import { Draggable } from "../../Draggable";
 import { Wrapper } from "../../Wrapper";
-
 import "./style.css";
-import UseAnimations from "react-useanimations";
-import radioButton from "react-useanimations/lib/radioButton";
-
-import { getTranslateStyle, updateSeatPositionsOnDB } from "./utils";
+import { updateSeatPositionsOnDB } from "./utils";
+import SelectableItem from "./SelectableItem";
+import DraggableItem from "./DraggableItem";
 
 export const Seat = ({
   id,
@@ -116,38 +111,5 @@ export const Seat = ({
         )}
       </Wrapper>
     </DndContext>
-  );
-};
-
-const DraggableItem = ({ label, style, translate, innerComponent }) => {
-  const { attributes, isDragging, listeners, setNodeRef } = useDraggable({
-    id: "draggable",
-  });
-
-  return (
-    <Draggable
-      ref={setNodeRef}
-      dragging={isDragging}
-      label={label}
-      listeners={listeners}
-      style={style}
-      translate={translate}
-      innerComponent={innerComponent}
-      {...attributes}
-    />
-  );
-};
-
-const SelectableItem = ({ style, translate, innerComponent }) => {
-  const [checked, setChecked] = useState(false);
-  const styleSelectable = getTranslateStyle(translate);
-  if (checked) style = { ...style, backgroundColor: "#F45B69" };
-
-  return (
-    <div className="Selectable" style={styleSelectable}>
-      <button style={style} onClick={() => setChecked(!checked)}>
-        {innerComponent.component}
-      </button>
-    </div>
   );
 };

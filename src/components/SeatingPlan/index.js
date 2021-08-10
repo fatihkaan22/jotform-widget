@@ -8,10 +8,8 @@ import {
   fetchUserData,
   getMultiSeats,
 } from "./utils";
-import trash from "react-useanimations/lib/trash";
 import { createSnapModifier, restrictToWindowEdges } from "@dnd-kit/modifiers";
 import { nanoid } from "nanoid";
-import UseAnimations from "react-useanimations";
 import { Dropdown } from "../Dropdown";
 import { Input, Grid as GridUI, Button, Form, Popup } from "semantic-ui-react";
 import { DateInput, TimeInput } from "semantic-ui-calendar-react";
@@ -144,9 +142,6 @@ export const SeatingPlan = (props) => {
               />
             </GridUI.Column>
           </GridUI>
-          {/* <div className="delete">
-            <UseAnimations animation={trash} size={40} strokeColor="red" />
-          </div> */}
         </div>
       ) : (
         <div className="menu-preview">

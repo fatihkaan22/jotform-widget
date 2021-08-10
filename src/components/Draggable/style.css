@@ -16,6 +16,7 @@
   flex-shrink: 1;
   appearance: none;
   outline: none;
+  /* border: 1px solid black; */
   border: 0;
   /* padding: 8px 18px; */
   /* background-color: #181a22; */
