@@ -19,7 +19,7 @@
   left: 0;
   width: 100%;
   max-width: 900px;
-  margin: 10px;
+  /* margin: 10px; */
 }
 
 .menu-edit {
@@ -28,5 +28,14 @@
   left: 0;
   width: 100%;
   max-width: 300px;
-  margin: 10px;
+  /* margin: 10px; */
 }
+
+.multi-add-popup {
+  width: 180px;
+}
+
+/* TODO: matches better with jotform's edit panel */
+/* .menu-edit label {
+  color: white !important;
+} */

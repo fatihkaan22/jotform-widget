@@ -1,29 +1,22 @@
 import React, { forwardRef } from "react";
-import { getTranslateStyle } from "../Seat/utils";
-import "./Draggable.css";
+import { getTranslateStyle } from "../SeatingPlan/Seat/utils";
+import "./style.css";
 
 export const Draggable = forwardRef(function Draggable(
   {
-    axis,
     dragOverlay,
     dragging,
-    handle,
     label,
     listeners,
     translate,
-    type,
+    innerComponent,
     ...props
   },
   ref
 ) {
-
   const draggableStyle = getTranslateStyle(translate);
 
-
   return (
-    // styles.Draggable,
-    // dragging && styles.dragging,
-    // handle && styles.handle
     <div
       className={`
         Draggable 
@@ -36,24 +29,14 @@ export const Draggable = forwardRef(function Draggable(
         ref={ref}
         aria-label="Draggable"
         data-cypress="draggable-item"
-        {...(handle ? {} : listeners)}
-        tabIndex={handle ? -1 : undefined}
+        {...listeners}
+        tabIndex={undefined}
         {...props}
       >
         {/* TODO: type name change */}
-
-        {type.component}
-
-        {/* {axis === Axis.Vertical
-          ? draggableVertical
-          : axis === Axis.Horizontal
-          ? draggableHorizontal
-          : draggable} */}
-        {/* {handle ? <Handle {...(handle ? listeners : {})} /> : null} */}
+        {innerComponent.component}
       </button>
       {/* {label ? <label>{label}</label> : null} */}
     </div>
   );
 });
-
-// export const Axis = { All, Vertical, Horizontal };

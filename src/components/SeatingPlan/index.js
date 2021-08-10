@@ -1,83 +1,81 @@
-import { useState, useMemo, useEffect, useCallback } from "react";
-
-import { Seat } from "../Seat/Seat";
+import { useState, useMemo, useEffect } from "react";
+import { Seat } from "./Seat";
 import { Grid } from "../Grid";
-import { Droppable } from "../Droppable";
-import "./SeatingPlan.css";
-import trash from "react-useanimations/lib/trash";
-
+import "./style.css";
 import {
-  createSnapModifier,
-  restrictToWindowEdges,
-  //   restrictToHorizontalAxis,
-  //   restrictToVerticalAxis,
-  //   restrictToWindowEdges,
-  //   snapCenterToCursor,
-} from "@dnd-kit/modifiers";
-
+  deleteSeatFromDB,
+  updateSeatTypeOnDB,
+  fetchUserData,
+  getMultiSeats,
+  isPeopleMin,
+  isPeopleMax,
+} from "./utils";
+import { createSnapModifier, restrictToWindowEdges } from "@dnd-kit/modifiers";
 import { nanoid } from "nanoid";
-import firebase from "firebase";
-import { useObjectVal } from "react-firebase-hooks/database";
-import UseAnimations from "react-useanimations";
-import { ObjectSelector } from "../ObjectSelector";
-import {
-  Input,
-  Grid as GridUI,
-  Button,
-  Icon,
-  Header,
-  Form,
-  ButtonGroup,
-  Menu,
-} from "semantic-ui-react";
-// import SemanticDatepicker from "react-semantic-ui-datepickers";
-// import "react-semantic-ui-datepickers/dist/react-semantic-ui-datepickers.css";
-
+import { Dropdown } from "../Dropdown";
+import { Input, Grid as GridUI, Button, Form, Popup } from "semantic-ui-react";
 import {
   DateInput,
   TimeInput,
-  DateTimeInput,
   DatesRangeInput,
 } from "semantic-ui-calendar-react";
-
-import { ReactComponent as IconTableCircle } from "../../assets/table_circle.svg";
-import { ReactComponent as IconTableSquare } from "../../assets/table_square.svg";
-import { ReactComponent as IconArmchair } from "../../assets/armchair.svg";
-import { run } from "axe-core";
+import { MultiAddPopup } from "./Seat/MultiAddPopup";
+import { GRID, MULTI_ADD, PEOPLE } from "../../constants/input";
+import SEAT_TYPES_MAP from "../../constants/icons";
 
 export const SeatingPlan = (props) => {
-  const [gridSize, setGridSize] = useState(20);
+  const [gridSize, setGridSize] = useState(GRID.SIZE);
   const itemStyle = {
     // marginTop: gridSize + 1,
     // marginLeft: gridSize + 1,
-    width: gridSize * 2 - 1,
-    height: gridSize * 2 - 1,
+    width: gridSize * GRID.ITEM_WIDTH - 1,
+    height: gridSize * GRID.ITEM_HEIGHT - 1,
   };
 
-  const seatTypesMap = {
-    squareTable: {
-      component: <IconTableSquare />,
-      text: "Square Table",
-    },
-    circleTable: {
-      component: <IconTableCircle />,
-      text: "Circular Table",
-    },
-    armchair: {
-      component: <IconArmchair />,
-      text: "Armchair",
-    },
-  };
-
-  const user = firebase.auth().currentUser;
   const [seats, setSeats] = useState([]);
-  const defaultType = Object.keys(seatTypesMap)[0];
+  const defaultType = Object.keys(SEAT_TYPES_MAP)[0];
   const [selectedType, setSelectedType] = useState(defaultType);
   const snapToGrid = useMemo(() => createSnapModifier(gridSize), [gridSize]);
 
   useEffect(() => {
-    fetchInitialPositions();
+    const getSeats = async () => {
+      const { seatsFromDB, seatTypeFromDB } = await fetchUserData();
+      setSeats(seatsFromDB ? seatsFromDB : []);
+      setSelectedType(seatTypeFromDB ? seatTypeFromDB : defaultType);
+    };
+    getSeats();
   }, []);
+
+  const handleAddButtonClick = () => {
+    setSeats([...seats, { id: "seat-" + nanoid(), x: 0, y: 0 }]);
+  };
+
+  const handleMultiAddButtonClick = (
+    rows,
+    columns,
+    horizontalSpacing,
+    verticalSpacing
+  ) => {
+    const newSeats = getMultiSeats(
+      rows,
+      columns,
+      horizontalSpacing,
+      verticalSpacing
+    );
+
+    setSeats([...seats, ...newSeats]);
+  };
+
+  const deleteSeat = (seatId) => {
+    const updatedSeats = seats.filter((s) => seatId !== s.id);
+    setSeats(updatedSeats);
+    deleteSeatFromDB(seatId);
+  };
+
+  const handleDropdownChange = (selectedType) => {
+    setSelectedType(selectedType);
+    updateSeatTypeOnDB(selectedType);
+  };
 
   const seatList = seats.map((seat) => (
     <Seat
@@ -89,48 +87,35 @@ export const SeatingPlan = (props) => {
       key={seat.id}
       deleteSeat={deleteSeat}
       draggable={props.editable}
-      type={seatTypesMap[selectedType]}
+      seatType={SEAT_TYPES_MAP[selectedType]}
     />
   ));
 
-  // TODO: move functions to util.js
-  function deleteSeat(seatId) {
-    const updatedSeats = seats.filter((s) => seatId !== s.id);
-    setSeats(updatedSeats);
-    const user = firebase.auth().currentUser;
-    if (!user) {
-      console.log("ERROR: couldn't sign in");
-      return;
+  const [state, setState] = useState({
+    date: "",
+    time: "",
+    people: PEOPLE.DEFAULT,
+  });
+
+  const handleChange = (event, { name, value }) => {
+    if (state.hasOwnProperty(name)) {
+      // TODO: why not?
+      // setState({ [name]: value });
+      setState({ ...state, [name]: value });
     }
-    firebase
-      .database()
-      .ref(user.uid + "/seats/" + seatId)
-      .set({});
-  }
+  };
 
-  function handleAddButtonClick() {
-    setSeats([...seats, { id: "seat-" + nanoid(), x: 0, y: 0 }]);
-  }
+  const handlePeopleDecrement = (event) => {
+    if (!isPeopleMin(state.people)) {
+      setState({ ...state, people: state.people - 1 });
+    }
+  };
 
-  // TODO: change structure - to avoid same user but different forms: /user/formId/seats
-  function fetchInitialPositions() {
-    const dbRef = firebase.database().ref();
-    dbRef
-      .child(user.uid)
-      .child("seats")
-      .get()
-      .then((snapshot) => {
-        if (snapshot.exists()) {
-          const updatedSeats = Object.values(snapshot.val());
-          setSeats(updatedSeats);
-        } else {
-          console.log("No data available");
-        }
-      })
-      .catch((error) => {
-        console.error(error);
-      });
-  }
+  const handlePeopleIncrement = (event) => {
+    if (!isPeopleMax(state.people)) {
+      setState({ ...state, people: state.people + 1 });
+    }
+  };
 
   return (
     <>
@@ -141,26 +126,28 @@ export const SeatingPlan = (props) => {
               <Form>
                 <Form.Field>
                   <label>Select type and add</label>
-                  <ObjectSelector
-                    options={seatTypesMap}
+                  <Dropdown
+                    options={SEAT_TYPES_MAP}
                     value={selectedType}
-                    onChange={setSelectedType}
+                    onChange={handleDropdownChange}
                   />
                 </Form.Field>
               </Form>
             </GridUI.Column>
-            <GridUI.Column floated="left" verticalAlign="bottom">
-              <Form>
-                <Form.Field>
-                  {/* <label>Add</label> */}
-                  <Button icon="add" onClick={handleAddButtonClick} />
-                </Form.Field>
-              </Form>
+            <GridUI.Column verticalAlign="bottom">
+              <Popup
+                content={"Add object"}
+                position="bottom center"
+                trigger={<Button icon="add" onClick={handleAddButtonClick} />}
+              />
+              <MultiAddPopup onSubmit={handleMultiAddButtonClick} />
+              <Popup
+                content="To remove objects move outside of the grid."
+                position="bottom center"
+                trigger={<Button icon="trash" />}
+              />
             </GridUI.Column>
           </GridUI>
-          {/* <div className="delete">
-            <UseAnimations animation={trash} size={40} strokeColor="red" />
-          </div> */}
         </div>
       ) : (
         <div className="menu-preview">
@@ -169,7 +156,11 @@ export const SeatingPlan = (props) => {
               <Form>
                 <Form.Field>
                   <label>Date</label>
-                  <DateInput />
+                  <DateInput
+                    name="date"
+                    value={state.date}
+                    onChange={handleChange}
+                  />
                 </Form.Field>
               </Form>
             </GridUI.Column>
@@ -177,7 +168,12 @@ export const SeatingPlan = (props) => {
               <Form>
                 <Form.Field>
                   <label>Time</label>
-                  <TimeInput />
+                  <TimeInput
+                    name="time"
+                    value={state.time}
+                    onChange={handleChange}
+                    disableMinute
+                  />
                 </Form.Field>
               </Form>
             </GridUI.Column>
@@ -185,15 +181,17 @@ export const SeatingPlan = (props) => {
               <Form>
                 <Form.Field>
                   <label>People</label>
-                  {/* <ButtonGroup size="tiny">
-                      <Button icon="plus" />
-                      <Button icon="minus" />
-                    </ButtonGroup> */}
-                  {/* <Input action={{ icon: "plus" }} /> */}
-                  <Input type="text" action>
+                  <Input
+                    value={state.people}
+                    type="number"
+                    className="no-spinner"
+                    min={PEOPLE.MIN}
+                    max={PEOPLE.MAX}
+                    action
+                  >
                     <input />
-                    <Button icon="minus" />
-                    <Button icon="plus" />
+                    <Button icon="minus" onClick={handlePeopleDecrement} />
+                    <Button icon="plus" onClick={handlePeopleIncrement} />
                   </Input>
                 </Form.Field>
               </Form>
