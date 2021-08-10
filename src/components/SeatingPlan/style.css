@@ -39,3 +39,16 @@
 /* .menu-edit label {
   color: white !important;
 } */
+
+/* remove arrows/spinners: https://www.w3schools.com/howto/howto_css_hide_arrow_number.asp  */
+/* Chrome, Safari, Edge, Opera */
+.no-spinner input::-webkit-outer-spin-button,
+.no-spinner input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Firefox */
+.no-spinner input[type="number"] {
+  -moz-appearance: textfield;
+}

@@ -10,7 +10,7 @@ const SelectableItem = ({ style, translate, innerComponent }) => {
   return (
     <div className="Selectable" style={styleSelectable}>
       <button
-        className={selected && "selected"}
+        className={selected ? "selected" : undefined}
         style={style}
         onClick={() => setSelected(!selected)}
       >
