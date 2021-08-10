@@ -84,6 +84,13 @@ export const isPeopleMax = (value) => {
   return value === PEOPLE.MAX;
 };
 
+export const getCurrentDate = () => {
+  const today = new Date();
+  const date =
+    today.getDate() + "-" + (today.getMonth() + 1) + "-" + today.getFullYear();
+  return date;
+};
+
 // export const fetchInitialPositions = async () => {
 //   const user = firebase.auth().currentUser;
 //   const dbRef = firebase.database().ref();

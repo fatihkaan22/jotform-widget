@@ -9,6 +9,7 @@ import {
   getMultiSeats,
   isPeopleMin,
   isPeopleMax,
+  getCurrentDate,
 } from "./utils";
 import { createSnapModifier, restrictToWindowEdges } from "@dnd-kit/modifiers";
 import { nanoid } from "nanoid";
@@ -160,6 +161,9 @@ export const SeatingPlan = (props) => {
                     name="date"
                     value={state.date}
                     onChange={handleChange}
+                    minDate={getCurrentDate()}
+                    // maxDate={TODO}
+
                   />
                 </Form.Field>
               </Form>
