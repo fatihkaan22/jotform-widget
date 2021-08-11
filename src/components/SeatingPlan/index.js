@@ -22,8 +22,8 @@ import {
   Button,
   Form,
   Popup,
-  Loader,
-  Dimmer,
+  TransitionablePortal,
+  Message,
 } from "semantic-ui-react";
 import { DateInput, TimeInput } from "semantic-ui-calendar-react";
 import { MultiAddPopup } from "./Seat/MultiAddPopup";
@@ -52,6 +52,7 @@ export const SeatingPlan = (props) => {
     people: PEOPLE.DEFAULT,
   });
   const [isLoading, setIsLoading] = useState(false);
+  const [errorAllReserved, setErrorAllReserved] = useState(false);
 
   useEffect(() => {
     const getSeats = async () => {
@@ -150,7 +151,6 @@ export const SeatingPlan = (props) => {
       console.log("ERROR: empty fields");
       return;
     }
-    // TODO: loading
     // TODO: all seats are available / no seats are available
     const getReserved = async () => {
       setIsLoading(true);
@@ -162,17 +162,23 @@ export const SeatingPlan = (props) => {
       // TODO: doesn't unselect elements, why?
       reservedFromBD.forEach((seatId) => unselectSeat(seatId));
       setIsLoading(false);
+      if (reservedFromBD.length === seats.length) {
+        // all seats reserved
+        console.log("all busy");
+        setErrorAllReserved(true);
+      }
     };
     getReserved();
   };
 
+  // for debugging purposes; to simulate submit
   const handleUp = (event) => {
     if (
       !fieldState.date ||
       !fieldState.time ||
       !fieldState.people ||
       !selectedSeats ||
-      selectedSeats.size == 0
+      selectedSeats.size === 0
     ) {
       console.log("ERROR: empty fields");
       return;
@@ -269,6 +275,15 @@ export const SeatingPlan = (props) => {
                 content="Check Availability"
                 onClick={handleCheckAvailability}
               />
+              <TransitionablePortal
+                open={errorAllReserved}
+                onClose={() => setErrorAllReserved(false)}
+              >
+                <Message error className="info-portal">
+                  <Message.Header>All seats are reserved</Message.Header>
+                  <p>{`There are no available seats on ${fieldState.date} at ${fieldState.time}.`}</p>
+                </Message>
+              </TransitionablePortal>
               <Button icon="angle up" onClick={handleUp} />
             </GridUI.Column>
           </GridUI>

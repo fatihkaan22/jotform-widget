@@ -52,3 +52,10 @@
 .no-spinner input[type="number"] {
   -moz-appearance: textfield;
 }
+
+.info-portal {
+  left: 30%;
+  position: fixed !important;
+  top: 20%;
+  z-index: 1000;
+}

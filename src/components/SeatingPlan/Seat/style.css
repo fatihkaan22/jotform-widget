@@ -38,4 +38,5 @@
 
 .disabledSeat {
   background-color: #f87171 !important;
+  cursor: default !important;
 }
