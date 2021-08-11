@@ -12,6 +12,7 @@ import {
   getCurrentDate,
   fetchReservedSeats,
   reserveSeat,
+  isPeopleLessThanSelected,
 } from "./utils";
 import { createSnapModifier, restrictToWindowEdges } from "@dnd-kit/modifiers";
 import { nanoid } from "nanoid";
@@ -53,6 +54,7 @@ export const SeatingPlan = (props) => {
   });
   const [isLoading, setIsLoading] = useState(false);
   const [errorAllReserved, setErrorAllReserved] = useState(false);
+  const [errorSelectSeat, setErrorSelectSeat] = useState(false);
 
   useEffect(() => {
     const getSeats = async () => {
@@ -95,6 +97,11 @@ export const SeatingPlan = (props) => {
   };
 
   const selectSeat = (seatId) => {
+    if (isPeopleLessThanSelected(fieldState.people, selectedSeats.size)) {
+      setErrorSelectSeat(true);
+      return;
+    }
+    setErrorSelectSeat(false);
     setSelectedSeats(new Set([...selectedSeats, seatId]));
   };
 
@@ -106,6 +113,7 @@ export const SeatingPlan = (props) => {
       const updatedSeats = [...prevSelectedSeats].filter((id) => seatId !== id);
       return new Set(updatedSeats);
     });
+    setErrorSelectSeat(false);
   };
 
   const seatList = seats.map((seat) => (
@@ -135,14 +143,20 @@ export const SeatingPlan = (props) => {
   };
 
   const handlePeopleDecrement = (event) => {
+    if (isPeopleLessThanSelected(fieldState.people, selectedSeats.size)) {
+      setErrorSelectSeat(true);
+      return;
+    }
     if (!isPeopleMin(fieldState.people)) {
       setFieldState({ ...fieldState, people: fieldState.people - 1 });
+      setErrorSelectSeat(false);
     }
   };
 
   const handlePeopleIncrement = (event) => {
     if (!isPeopleMax(fieldState.people)) {
       setFieldState({ ...fieldState, people: fieldState.people + 1 });
+      setErrorSelectSeat(false);
     }
   };
 
@@ -282,6 +296,15 @@ export const SeatingPlan = (props) => {
                 <Message error className="info-portal">
                   <Message.Header>All seats are reserved</Message.Header>
                   <p>{`There are no available seats on ${fieldState.date} at ${fieldState.time}.`}</p>
+                </Message>
+              </TransitionablePortal>
+              <TransitionablePortal
+                open={errorSelectSeat}
+                onClose={() => setErrorSelectSeat(false)}
+              >
+                <Message warning className="info-portal">
+                  <Message.Header>Couldn't make selection</Message.Header>
+                  <p>{`You can not select seats more than number of people (${fieldState.people}).`}</p>
                 </Message>
               </TransitionablePortal>
               <Button icon="angle up" onClick={handleUp} />
