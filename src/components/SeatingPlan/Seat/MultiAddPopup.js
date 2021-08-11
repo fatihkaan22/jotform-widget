@@ -25,7 +25,7 @@ export const MultiAddPopup = ({ onSubmit }) => {
   };
 
   return (
-    <Popup trigger={<Button icon="th" />} flowing hoverable position="bottom">
+    <Popup trigger={<Button icon="th" />} flowing hoverable position="bottom center">
       <p>Add multiple objects</p>
       <Form onSubmit={handleSubmit}>
         <GridUI className="multi-add-popup">

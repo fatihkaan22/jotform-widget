@@ -62,7 +62,7 @@ export const SeatingPlan = (props) => {
       setSelectedType(seatTypeFromDB ? seatTypeFromDB : defaultType);
     };
     getSeats();
-  });
+  }, []);
 
   const handleAddButtonClick = () => {
     setSeats([...seats, { id: "seat-" + nanoid(), x: 0, y: 0 }]);
