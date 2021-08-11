@@ -34,8 +34,6 @@ import SEAT_TYPES_MAP from "../../constants/icons";
 export const SeatingPlan = (props) => {
   const [gridSize, setGridSize] = useState(GRID.SIZE);
   const itemStyle = {
-    // marginTop: gridSize + 1,
-    // marginLeft: gridSize + 1,
     width: gridSize * GRID.ITEM_WIDTH - 1,
     height: gridSize * GRID.ITEM_HEIGHT - 1,
   };
@@ -55,6 +53,7 @@ export const SeatingPlan = (props) => {
   const [isLoading, setIsLoading] = useState(false);
   const [errorAllReserved, setErrorAllReserved] = useState(false);
   const [errorSelectSeat, setErrorSelectSeat] = useState(false);
+  const [errorEmptyFields, setErrorEmptyFields] = useState(false);
 
   useEffect(() => {
     const getSeats = async () => {
@@ -116,24 +115,6 @@ export const SeatingPlan = (props) => {
     setErrorSelectSeat(false);
   };
 
-  const seatList = seats.map((seat) => (
-    <Seat
-      id={seat.id}
-      key={seat.id}
-      coordinates={{ x: seat.x, y: seat.y }}
-      style={itemStyle}
-      modifiers={[snapToGrid, restrictToWindowEdges]}
-      gridSize={gridSize}
-      deleteSeat={deleteSeat}
-      selectSeat={selectSeat}
-      unselectSeat={unselectSeat}
-      draggable={props.editable}
-      seatType={SEAT_TYPES_MAP[selectedType]}
-      selected={selectedSeats.has(seat.id)}
-      reserved={reservedSeats.includes(seat.id)}
-    />
-  ));
-
   // date - time fields
   const handleChange = (event, { name, value }) => {
     // TODO: clear selectables
@@ -162,9 +143,11 @@ export const SeatingPlan = (props) => {
 
   const handleCheckAvailability = (event) => {
     if (!fieldState.date || !fieldState.time || !fieldState.people) {
+      setErrorEmptyFields(true);
       console.log("ERROR: empty fields");
       return;
     }
+    setErrorEmptyFields(false);
     // TODO: all seats are available / no seats are available
     const getReserved = async () => {
       setIsLoading(true);
@@ -178,7 +161,6 @@ export const SeatingPlan = (props) => {
       setIsLoading(false);
       if (reservedFromBD.length === seats.length) {
         // all seats reserved
-        console.log("all busy");
         setErrorAllReserved(true);
       }
     };
@@ -194,12 +176,31 @@ export const SeatingPlan = (props) => {
       !selectedSeats ||
       selectedSeats.size === 0
     ) {
+      setErrorEmptyFields(true);
       console.log("ERROR: empty fields");
       return;
     }
     reserveSeat(fieldState, selectedSeats);
     setSelectedSeats(new Set());
   };
+
+  const seatList = seats.map((seat) => (
+    <Seat
+      id={seat.id}
+      key={seat.id}
+      coordinates={{ x: seat.x, y: seat.y }}
+      style={itemStyle}
+      modifiers={[snapToGrid, restrictToWindowEdges]}
+      gridSize={gridSize}
+      deleteSeat={deleteSeat}
+      selectSeat={selectSeat}
+      unselectSeat={unselectSeat}
+      draggable={props.editable}
+      seatType={SEAT_TYPES_MAP[selectedType]}
+      selected={selectedSeats.has(seat.id)}
+      reserved={reservedSeats.includes(seat.id)}
+    />
+  ));
 
   return (
     <>
@@ -305,6 +306,19 @@ export const SeatingPlan = (props) => {
                 <Message warning className="info-portal">
                   <Message.Header>Couldn't make selection</Message.Header>
                   <p>{`You can not select seats more than number of people (${fieldState.people}).`}</p>
+                </Message>
+              </TransitionablePortal>
+              <TransitionablePortal
+                open={errorEmptyFields}
+                onClose={() => setErrorEmptyFields(false)}
+              >
+                <Message warning className="info-portal">
+                  <Message.Header>Fields are empty</Message.Header>
+                  <p>
+                    Couldn't check availability.
+                    <br />
+                    Please make sure fill the date and time fields
+                  </p>
                 </Message>
               </TransitionablePortal>
               <Button icon="angle up" onClick={handleUp} />
