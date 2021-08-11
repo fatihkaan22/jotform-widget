@@ -1,5 +1,4 @@
 import classNames from "classnames";
-import { useState } from "react";
 
 import { getTranslateStyle } from "./utils";
 
@@ -13,7 +12,6 @@ const SelectableItem = ({
   disabled,
   selected,
 }) => {
-  // const [selected, setSelected] = useState(false);
   const styleSelectable = getTranslateStyle(translate);
 
   const handleSelect = (event) => {
@@ -22,14 +20,12 @@ const SelectableItem = ({
     } else {
       unselectSeat(id);
     }
-    // setSelected(!selected);
   };
 
   return (
     <div className="Selectable" style={styleSelectable}>
       <button
         className={classNames({ selected: selected, disabledSeat: disabled })}
-        // {selected ? "selected" : undefined}
         style={style}
         onClick={disabled ? undefined : handleSelect}
       >

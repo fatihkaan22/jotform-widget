@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Input, Grid as GridUI, Button, Form, Popup } from "semantic-ui-react";
+import { Grid as GridUI, Button, Form, Popup } from "semantic-ui-react";
 import { MULTI_ADD } from "../../../constants/input";
 
 export const MultiAddPopup = ({ onSubmit }) => {
@@ -89,7 +89,7 @@ export const MultiAddPopup = ({ onSubmit }) => {
           )}
           <GridUI.Row>
             <GridUI.Column>
-              <Button type="submit" floated="right" size="mini" type="submit">
+              <Button type="submit" floated="right" size="mini">
                 Add
               </Button>
             </GridUI.Column>
