@@ -26,6 +26,7 @@ export const Seat = ({
   unselectSeat,
   draggable,
   seatType,
+  selected,
   reserved,
 }) => {
   const defaultCoordinates = {
@@ -114,6 +115,7 @@ export const Seat = ({
             selectSeat={selectSeat}
             unselectSeat={unselectSeat}
             disabled={reserved}
+            selected={selected}
           />
         )}
       </Wrapper>

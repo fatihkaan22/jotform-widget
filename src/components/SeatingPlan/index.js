@@ -87,23 +87,29 @@ export const SeatingPlan = (props) => {
   };
 
   const unselectSeat = (seatId) => {
-    const updatedSeats = [...selectedSeats].filter((id) => seatId !== id);
-    setSelectedSeats(new Set([...updatedSeats]));
+    // TODO:
+    // const updatedSeats = [...selectedSeats].filter((id) => seatId !== id);
+    // setSelectedSeats(new Set([...updatedSeats]));
+    setSelectedSeats((prevSelectedSeats) => {
+      const updatedSeats = [...prevSelectedSeats].filter((id) => seatId !== id);
+      return new Set(updatedSeats);
+    });
   };
 
   const seatList = seats.map((seat) => (
     <Seat
       id={seat.id}
+      key={seat.id}
       coordinates={{ x: seat.x, y: seat.y }}
       style={itemStyle}
       modifiers={[snapToGrid, restrictToWindowEdges]}
       gridSize={gridSize}
-      key={seat.id}
       deleteSeat={deleteSeat}
       selectSeat={selectSeat}
       unselectSeat={unselectSeat}
       draggable={props.editable}
       seatType={SEAT_TYPES_MAP[selectedType]}
+      selected={selectedSeats.has(seat.id)}
       reserved={reservedSeats.includes(seat.id)}
     />
   ));
@@ -140,6 +146,7 @@ export const SeatingPlan = (props) => {
     const getReserved = async () => {
       const reservedFromBD = await fetchReservedSeats(state.date, state.time);
       setReservedSeats(reservedFromBD);
+      // TODO: doesn't unselect elements, why?
       reservedFromBD.forEach((seatId) => unselectSeat(seatId));
     };
     getReserved();
@@ -157,7 +164,6 @@ export const SeatingPlan = (props) => {
       return;
     }
     reserveSeat(state, selectedSeats);
-    // TODO: doesn't unselect elements, why?
     setSelectedSeats(new Set());
   };
 

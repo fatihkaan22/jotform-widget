@@ -11,8 +11,9 @@ const SelectableItem = ({
   selectSeat,
   unselectSeat,
   disabled,
+  selected,
 }) => {
-  const [selected, setSelected] = useState(false);
+  // const [selected, setSelected] = useState(false);
   const styleSelectable = getTranslateStyle(translate);
 
   const handleSelect = (event) => {
@@ -21,7 +22,7 @@ const SelectableItem = ({
     } else {
       unselectSeat(id);
     }
-    setSelected(!selected);
+    // setSelected(!selected);
   };
 
   return (
