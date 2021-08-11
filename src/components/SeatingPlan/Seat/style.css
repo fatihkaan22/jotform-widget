@@ -32,7 +32,7 @@
   cursor: pointer;
 }
 
-.selected {
+.selectedItem {
   background-color: #a3e635 !important;
 }
 

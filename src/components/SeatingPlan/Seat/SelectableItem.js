@@ -25,7 +25,7 @@ const SelectableItem = ({
   return (
     <div className="Selectable" style={styleSelectable}>
       <button
-        className={classNames({ selected: selected, disabledSeat: disabled })}
+        className={classNames({ selectedItem: selected, disabledSeat: disabled })}
         style={style}
         onClick={disabled ? undefined : handleSelect}
       >
