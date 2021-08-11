@@ -13,6 +13,7 @@ import {
   fetchReservedSeats,
   reserveSeat,
   isPeopleLessThanSelected,
+  checkEveryItemIncludes,
 } from "./utils";
 import { createSnapModifier, restrictToWindowEdges } from "@dnd-kit/modifiers";
 import { nanoid } from "nanoid";
@@ -159,7 +160,8 @@ export const SeatingPlan = (props) => {
       // TODO: doesn't unselect elements, why?
       reservedFromBD.forEach((seatId) => unselectSeat(seatId));
       setIsLoading(false);
-      if (reservedFromBD.length === seats.length) {
+      const seatIds = seats.map((seat) => seat.id);
+      if (checkEveryItemIncludes(reservedFromBD, seatIds)) {
         // all seats reserved
         setErrorAllReserved(true);
       }

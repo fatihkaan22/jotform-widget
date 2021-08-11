@@ -134,6 +134,10 @@ export const reserveSeat = ({ date, time, people }, seats) => {
 export const isPeopleLessThanSelected = (noPeople, noSelected) =>
   noPeople === noSelected || noPeople < noSelected;
 
+export const checkEveryItemIncludes = (array, target) => {
+  return target.every((item) => array.includes(item));
+};
+
 // export const fetchInitialPositions = async () => {
 //   const user = firebase.auth().currentUser;
 //   const dbRef = firebase.database().ref();
