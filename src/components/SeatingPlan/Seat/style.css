@@ -1,5 +1,3 @@
-/* TODO: comes from: <link> */
-
 .Selectable {
   position: absolute;
   display: flex;
@@ -29,11 +27,15 @@
     box-shadow 300ms ease;
 }
 
+.Selectable button:hover {
+  background-color: #dcdcdc;
+  cursor: pointer;
+}
+
 .selected {
-  background-color: #a3e635;
+  background-color: #a3e635 !important;
 }
 
 .disabledSeat {
-  background-color: red !important;
+  background-color: #f87171 !important;
 }
-
