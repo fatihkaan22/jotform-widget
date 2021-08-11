@@ -24,9 +24,7 @@ const App = () => {
       console.log("signed in");
     })
     .catch((error) => {
-      var errorCode = error.code;
-      var errorMessage = error.message;
-      console.log("sing in error");
+      console.log(`ERROR: sing in ${error.code} : ${error.message}`);
     });
 
   const auth = firebase.auth();

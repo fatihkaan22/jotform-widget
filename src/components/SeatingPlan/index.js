@@ -9,33 +9,52 @@ import {
   getMultiSeats,
   isPeopleMin,
   isPeopleMax,
+  getCurrentDate,
+  fetchReservedSeats,
+  reserveSeat,
+  isPeopleLessThanSelected,
+  checkEveryItemIncludes,
 } from "./utils";
 import { createSnapModifier, restrictToWindowEdges } from "@dnd-kit/modifiers";
 import { nanoid } from "nanoid";
 import { Dropdown } from "../Dropdown";
-import { Input, Grid as GridUI, Button, Form, Popup } from "semantic-ui-react";
 import {
-  DateInput,
-  TimeInput,
-  DatesRangeInput,
-} from "semantic-ui-calendar-react";
+  Input,
+  Grid as GridUI,
+  Button,
+  Form,
+  Popup,
+  TransitionablePortal,
+  Message,
+} from "semantic-ui-react";
+import { DateInput, TimeInput } from "semantic-ui-calendar-react";
 import { MultiAddPopup } from "./Seat/MultiAddPopup";
-import { GRID, MULTI_ADD, PEOPLE } from "../../constants/input";
+import { GRID, PEOPLE } from "../../constants/input";
 import SEAT_TYPES_MAP from "../../constants/icons";
 
 export const SeatingPlan = (props) => {
   const [gridSize, setGridSize] = useState(GRID.SIZE);
   const itemStyle = {
-    // marginTop: gridSize + 1,
-    // marginLeft: gridSize + 1,
     width: gridSize * GRID.ITEM_WIDTH - 1,
     height: gridSize * GRID.ITEM_HEIGHT - 1,
   };
 
+  // TODO: consider putting states in a single object
   const [seats, setSeats] = useState([]);
   const defaultType = Object.keys(SEAT_TYPES_MAP)[0];
   const [selectedType, setSelectedType] = useState(defaultType);
+  const [selectedSeats, setSelectedSeats] = useState(new Set());
+  const [reservedSeats, setReservedSeats] = useState([]);
   const snapToGrid = useMemo(() => createSnapModifier(gridSize), [gridSize]);
+  const [fieldState, setFieldState] = useState({
+    date: "",
+    time: "",
+    people: PEOPLE.DEFAULT,
+  });
+  const [isLoading, setIsLoading] = useState(false);
+  const [errorAllReserved, setErrorAllReserved] = useState(false);
+  const [errorSelectSeat, setErrorSelectSeat] = useState(false);
+  const [errorEmptyFields, setErrorEmptyFields] = useState(false);
 
   useEffect(() => {
     const getSeats = async () => {
@@ -67,7 +86,7 @@ export const SeatingPlan = (props) => {
   };
 
   const deleteSeat = (seatId) => {
-    const updatedSeats = seats.filter((s) => seatId !== s.id);
+    const updatedSeats = seats.filter((seat) => seatId !== seat.id);
     setSeats(updatedSeats);
     deleteSeatFromDB(seatId);
   };
@@ -77,45 +96,113 @@ export const SeatingPlan = (props) => {
     updateSeatTypeOnDB(selectedType);
   };
 
-  const seatList = seats.map((seat) => (
-    <Seat
-      id={seat.id}
-      coordinates={{ x: seat.x, y: seat.y }}
-      style={itemStyle}
-      modifiers={[snapToGrid, restrictToWindowEdges]}
-      gridSize={gridSize}
-      key={seat.id}
-      deleteSeat={deleteSeat}
-      draggable={props.editable}
-      seatType={SEAT_TYPES_MAP[selectedType]}
-    />
-  ));
+  const selectSeat = (seatId) => {
+    if (isPeopleLessThanSelected(fieldState.people, selectedSeats.size)) {
+      setErrorSelectSeat(true);
+      return;
+    }
+    setErrorSelectSeat(false);
+    setSelectedSeats(new Set([...selectedSeats, seatId]));
+  };
 
-  const [state, setState] = useState({
-    date: "",
-    time: "",
-    people: PEOPLE.DEFAULT,
-  });
+  const unselectSeat = (seatId) => {
+    // TODO:
+    // const updatedSeats = [...selectedSeats].filter((id) => seatId !== id);
+    // setSelectedSeats(new Set([...updatedSeats]));
+    setSelectedSeats((prevSelectedSeats) => {
+      const updatedSeats = [...prevSelectedSeats].filter((id) => seatId !== id);
+      return new Set(updatedSeats);
+    });
+    setErrorSelectSeat(false);
+  };
 
+  // date - time fields
   const handleChange = (event, { name, value }) => {
-    if (state.hasOwnProperty(name)) {
-      // TODO: why not?
-      // setState({ [name]: value });
-      setState({ ...state, [name]: value });
+    // TODO: clear selectables
+    if (fieldState.hasOwnProperty(name)) {
+      setFieldState({ ...fieldState, [name]: value });
     }
   };
 
   const handlePeopleDecrement = (event) => {
-    if (!isPeopleMin(state.people)) {
-      setState({ ...state, people: state.people - 1 });
+    if (isPeopleLessThanSelected(fieldState.people, selectedSeats.size)) {
+      setErrorSelectSeat(true);
+      return;
+    }
+    if (!isPeopleMin(fieldState.people)) {
+      setFieldState({ ...fieldState, people: fieldState.people - 1 });
+      setErrorSelectSeat(false);
     }
   };
 
   const handlePeopleIncrement = (event) => {
-    if (!isPeopleMax(state.people)) {
-      setState({ ...state, people: state.people + 1 });
+    if (!isPeopleMax(fieldState.people)) {
+      setFieldState({ ...fieldState, people: fieldState.people + 1 });
+      setErrorSelectSeat(false);
     }
   };
+
+  const handleCheckAvailability = (event) => {
+    if (!fieldState.date || !fieldState.time || !fieldState.people) {
+      setErrorEmptyFields(true);
+      console.log("ERROR: empty fields");
+      return;
+    }
+    setErrorEmptyFields(false);
+    // TODO: all seats are available / no seats are available
+    const getReserved = async () => {
+      setIsLoading(true);
+      const reservedFromBD = await fetchReservedSeats(
+        fieldState.date,
+        fieldState.time
+      );
+      setReservedSeats(reservedFromBD);
+      // TODO: doesn't unselect elements, why?
+      reservedFromBD.forEach((seatId) => unselectSeat(seatId));
+      setIsLoading(false);
+      const seatIds = seats.map((seat) => seat.id);
+      if (checkEveryItemIncludes(reservedFromBD, seatIds)) {
+        // all seats reserved
+        setErrorAllReserved(true);
+      }
+    };
+    getReserved();
+  };
+
+  // for debugging purposes; to simulate submit
+  const handleUp = (event) => {
+    if (
+      !fieldState.date ||
+      !fieldState.time ||
+      !fieldState.people ||
+      !selectedSeats ||
+      selectedSeats.size === 0
+    ) {
+      setErrorEmptyFields(true);
+      console.log("ERROR: empty fields");
+      return;
+    }
+    reserveSeat(fieldState, selectedSeats);
+    setSelectedSeats(new Set());
+  };
+
+  const seatList = seats.map((seat) => (
+    <Seat
+      id={seat.id}
+      key={seat.id}
+      coordinates={{ x: seat.x, y: seat.y }}
+      style={itemStyle}
+      modifiers={[snapToGrid, restrictToWindowEdges]}
+      gridSize={gridSize}
+      deleteSeat={deleteSeat}
+      selectSeat={selectSeat}
+      unselectSeat={unselectSeat}
+      draggable={props.editable}
+      seatType={SEAT_TYPES_MAP[selectedType]}
+      selected={selectedSeats.has(seat.id)}
+      reserved={reservedSeats.includes(seat.id)}
+    />
+  ));
 
   return (
     <>
@@ -158,8 +245,10 @@ export const SeatingPlan = (props) => {
                   <label>Date</label>
                   <DateInput
                     name="date"
-                    value={state.date}
+                    value={fieldState.date}
                     onChange={handleChange}
+                    minDate={getCurrentDate()}
+                    // maxDate={TODO}
                   />
                 </Form.Field>
               </Form>
@@ -170,7 +259,7 @@ export const SeatingPlan = (props) => {
                   <label>Time</label>
                   <TimeInput
                     name="time"
-                    value={state.time}
+                    value={fieldState.time}
                     onChange={handleChange}
                     disableMinute
                   />
@@ -182,7 +271,7 @@ export const SeatingPlan = (props) => {
                 <Form.Field>
                   <label>People</label>
                   <Input
-                    value={state.people}
+                    value={fieldState.people}
                     type="number"
                     className="no-spinner"
                     min={PEOPLE.MIN}
@@ -197,7 +286,44 @@ export const SeatingPlan = (props) => {
               </Form>
             </GridUI.Column>
             <GridUI.Column floated="right" width={4} verticalAlign="bottom">
-              <Button color="red" content="Check Availability" />
+              <Button
+                color="red"
+                loading={isLoading}
+                content="Check Availability"
+                onClick={handleCheckAvailability}
+              />
+              <TransitionablePortal
+                open={errorAllReserved}
+                onClose={() => setErrorAllReserved(false)}
+              >
+                <Message error className="info-portal">
+                  <Message.Header>All seats are reserved</Message.Header>
+                  <p>{`There are no available seats on ${fieldState.date} at ${fieldState.time}.`}</p>
+                </Message>
+              </TransitionablePortal>
+              <TransitionablePortal
+                open={errorSelectSeat}
+                onClose={() => setErrorSelectSeat(false)}
+              >
+                <Message warning className="info-portal">
+                  <Message.Header>Couldn't make selection</Message.Header>
+                  <p>{`You can not select seats more than number of people (${fieldState.people}).`}</p>
+                </Message>
+              </TransitionablePortal>
+              <TransitionablePortal
+                open={errorEmptyFields}
+                onClose={() => setErrorEmptyFields(false)}
+              >
+                <Message warning className="info-portal">
+                  <Message.Header>Fields are empty</Message.Header>
+                  <p>
+                    Couldn't check availability.
+                    <br />
+                    Please make sure fill the date and time fields
+                  </p>
+                </Message>
+              </TransitionablePortal>
+              <Button icon="angle up" onClick={handleUp} />
             </GridUI.Column>
           </GridUI>
         </div>

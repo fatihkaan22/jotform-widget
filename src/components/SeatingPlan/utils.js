@@ -39,8 +39,6 @@ export const deleteSeatFromDB = (seatId) => {
 };
 
 export const updateSeatTypeOnDB = (seatType) => {
-  console.log(seatType);
-
   const user = firebase.auth().currentUser;
   if (!user) {
     console.log("ERROR: couldn't sign in");
@@ -82,6 +80,62 @@ export const isPeopleMin = (value) => {
 
 export const isPeopleMax = (value) => {
   return value === PEOPLE.MAX;
+};
+
+export const getCurrentDate = () => {
+  const today = new Date();
+  const date =
+    today.getDate() + "-" + (today.getMonth() + 1) + "-" + today.getFullYear();
+  return date;
+};
+
+export const fetchReservedSeats = async (date, time) => {
+  const user = firebase.auth().currentUser;
+  const dbRef = firebase.database().ref();
+  let reservedFromBD = [];
+  await dbRef
+    .child(user.uid + "/reservations/" + date + "/" + time)
+    .get()
+    .then((snapshot) => {
+      if (snapshot.exists()) {
+        const userData = snapshot.val();
+        const userDataAsList = Object.values(userData);
+        reservedFromBD = userDataAsList.map(({ seats }) => seats).flat();
+      } else {
+        console.log("No data available");
+      }
+    })
+    .catch((error) => {
+      console.error(error);
+    });
+  return reservedFromBD;
+};
+
+export const reserveSeat = ({ date, time, people }, seats) => {
+  const user = firebase.auth().currentUser;
+  if (!user) {
+    console.log("ERROR: couldn't sign in");
+    return;
+  }
+  // TODO: consider checking db if reserved
+  const reservationsRef = firebase
+    .database()
+    .ref(user.uid + "/reservations/" + date + "/" + time);
+  const newReservation = reservationsRef.push();
+
+  newReservation.set({
+    user: user.uid,
+    people: people,
+    seats: [...seats], // seats is Set
+    status: "reserved",
+  });
+};
+
+export const isPeopleLessThanSelected = (noPeople, noSelected) =>
+  noPeople === noSelected || noPeople < noSelected;
+
+export const checkEveryItemIncludes = (array, target) => {
+  return target.every((item) => array.includes(item));
 };
 
 // export const fetchInitialPositions = async () => {
