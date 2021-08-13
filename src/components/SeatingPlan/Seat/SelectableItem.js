@@ -1,6 +1,7 @@
-import classNames from "classnames";
+import React from 'react';
+import classNames from 'classnames';
 
-import { getTranslateStyle } from "./utils";
+import { getTranslateStyle } from './utils';
 
 const SelectableItem = ({
   id,
@@ -14,7 +15,7 @@ const SelectableItem = ({
 }) => {
   const styleSelectable = getTranslateStyle(translate);
 
-  const handleSelect = (event) => {
+  const handleSelect = () => {
     if (!selected) {
       selectSeat(id);
     } else {

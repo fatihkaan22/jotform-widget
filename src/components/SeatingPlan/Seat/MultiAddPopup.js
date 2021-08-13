@@ -1,6 +1,6 @@
-import { useState } from "react";
-import { Grid as GridUI, Button, Form, Popup } from "semantic-ui-react";
-import { MULTI_ADD } from "../../../constants/input";
+import { useState } from 'react';
+import { Grid as GridUI, Button, Form, Popup } from 'semantic-ui-react';
+import { MULTI_ADD } from '../../../constants/input';
 
 export const MultiAddPopup = ({ onSubmit }) => {
   const [state, setState] = useState({

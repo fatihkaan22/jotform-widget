@@ -1,6 +1,6 @@
-import React, { forwardRef } from "react";
-import { getTranslateStyle } from "../SeatingPlan/Seat/utils";
-import "./style.css";
+import React, { forwardRef } from 'react';
+import { getTranslateStyle } from '../SeatingPlan/Seat/utils';
+import './style.css';
 
 export const Draggable = forwardRef(function Draggable(
   {
@@ -20,8 +20,8 @@ export const Draggable = forwardRef(function Draggable(
     <div
       className={`
         Draggable 
-        ${dragOverlay ? "dragOverlay" : ""} 
-        ${dragging ? "dragging" : ""}
+        ${dragOverlay ? 'dragOverlay' : ''} 
+        ${dragging ? 'dragging' : ''}
 `}
       style={draggableStyle}
     >
@@ -33,7 +33,6 @@ export const Draggable = forwardRef(function Draggable(
         tabIndex={undefined}
         {...props}
       >
-        {/* TODO: type name change */}
         {innerComponent.component}
       </button>
       {/* {label ? <label>{label}</label> : null} */}

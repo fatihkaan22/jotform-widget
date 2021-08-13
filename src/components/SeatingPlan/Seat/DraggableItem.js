@@ -1,9 +1,10 @@
-import { useDraggable } from "@dnd-kit/core";
-import { Draggable } from "../../Draggable";
+import React from 'react';
+import { useDraggable } from '@dnd-kit/core';
+import { Draggable } from '../../Draggable';
 
 const DraggableItem = ({ label, style, translate, innerComponent }) => {
   const { attributes, isDragging, listeners, setNodeRef } = useDraggable({
-    id: "draggable",
+    id: 'draggable'
   });
 
   return (

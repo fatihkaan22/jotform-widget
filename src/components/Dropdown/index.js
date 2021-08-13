@@ -1,4 +1,5 @@
-import { Dropdown as DropdownUI } from "semantic-ui-react";
+import React from 'react';
+import { Dropdown as DropdownUI } from 'semantic-ui-react';
 
 export const Dropdown = (props) => {
   const options = Object.entries(props.options).map(([key, value]) => {

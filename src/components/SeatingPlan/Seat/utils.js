@@ -1,11 +1,11 @@
-import firebase from "firebase";
+import firebase from 'firebase';
+import { GRID_ITEM } from '../../../constants/input';
 
 export const getTranslateStyle = (translate) => {
-  // const shift = { x: 11, y: 81 };
-  const shift = { x: 1, y: 71 };
+  const shift = { x: GRID_ITEM.MARGIN_LEFT, y: GRID_ITEM.MARGIN_TOP };
   return {
-    "--translate-x": `${translate?.x + shift.x ?? 0}px`,
-    "--translate-y": `${translate?.y + shift.y ?? 0}px`,
+    '--translate-x': `${translate?.x + shift.x ?? 0}px`,
+    '--translate-y': `${translate?.y + shift.y ?? 0}px`
   };
 };
 
@@ -18,10 +18,10 @@ export const updateSeatPositionsOnDB = (seat) => {
   }
   firebase
     .database()
-    .ref(user.uid + "/seats/" + seat.id)
+    .ref(user.uid + '/seats/' + seat.id)
     .set({
       id: seat.id,
       x: seat.x,
-      y: seat.y,
+      y: seat.y
     });
 };
