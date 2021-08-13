@@ -1,12 +1,13 @@
-import firebase from "firebase";
-import { nanoid } from "nanoid";
-import { PEOPLE } from "../../constants/input";
+import firebase from 'firebase';
+import { nanoid } from 'nanoid';
+import { GRID, GRID_ITEM, PEOPLE, TEXT_LABEL } from '../../constants/input';
 
 // TODO: change structure - to avoid same user but different forms: /user/formId/seats
 export const fetchUserData = async () => {
   const user = firebase.auth().currentUser;
   const dbRef = firebase.database().ref();
   let seatsFromDB = [];
+  let textLabelsFromDB = [];
   let seatTypeFromDB;
   await dbRef
     .child(user.uid)
@@ -16,14 +17,15 @@ export const fetchUserData = async () => {
         const userData = snapshot.val();
         seatsFromDB = Object.values(userData.seats);
         seatTypeFromDB = userData.seatType;
+        textLabelsFromDB = Object.values(userData.texts);
       } else {
-        console.log("No data available");
+        console.log('No data available');
       }
     })
     .catch((error) => {
       console.error(error);
     });
-  return { seatsFromDB, seatTypeFromDB };
+  return { seatsFromDB, seatTypeFromDB, textLabelsFromDB };
 };
 
 export const deleteSeatFromDB = (seatId) => {
@@ -32,10 +34,16 @@ export const deleteSeatFromDB = (seatId) => {
     console.log("ERROR: couldn't sign in");
     return;
   }
-  firebase
-    .database()
-    .ref(user.uid + "/seats/" + seatId)
-    .set({});
+  firebase.database().ref(`${user.uid}/seats/${seatId}`).set({});
+};
+
+export const deleteTextFromDB = (textId) => {
+  const user = firebase.auth().currentUser;
+  if (!user) {
+    console.log("ERROR: couldn't sign in");
+    return;
+  }
+  firebase.database().ref(`${user.uid}/texts/${textId}`).set({});
 };
 
 export const updateSeatTypeOnDB = (seatType) => {
@@ -44,10 +52,7 @@ export const updateSeatTypeOnDB = (seatType) => {
     console.log("ERROR: couldn't sign in");
     return;
   }
-  firebase
-    .database()
-    .ref(user.uid + "/seatType/")
-    .set(seatType);
+  firebase.database().ref(`${user.uid}/seatType/`).set(seatType);
 };
 
 export const getMultiSeats = (
@@ -57,7 +62,7 @@ export const getMultiSeats = (
   verticalSpacing = 1
 ) => {
   if (rows < 1 || columns < 1) {
-    console.log("ERROR: rows or columns < 1");
+    console.log('ERROR: rows or columns < 1');
     return;
   }
   const start = { x: 1, y: 1 }; // first element
@@ -65,9 +70,9 @@ export const getMultiSeats = (
   for (let i = 0; i < columns; i++) {
     for (let j = 0; j < rows; j++) {
       newSeats.push({
-        id: "seat-" + nanoid(),
+        id: `seat-${nanoid()}`,
         x: i * 2 + i * verticalSpacing + start.x,
-        y: j * 2 + j * horizontalSpacing + start.y,
+        y: j * 2 + j * horizontalSpacing + start.y
       });
     }
   }
@@ -84,8 +89,9 @@ export const isPeopleMax = (value) => {
 
 export const getCurrentDate = () => {
   const today = new Date();
-  const date =
-    today.getDate() + "-" + (today.getMonth() + 1) + "-" + today.getFullYear();
+  const date = `${today.getDate()}-${
+    today.getMonth() + 1
+  }-${today.getFullYear()}`;
   return date;
 };
 
@@ -94,7 +100,7 @@ export const fetchReservedSeats = async (date, time) => {
   const dbRef = firebase.database().ref();
   let reservedFromBD = [];
   await dbRef
-    .child(user.uid + "/reservations/" + date + "/" + time)
+    .child(`${user.uid}/reservations/${date}/${time}`)
     .get()
     .then((snapshot) => {
       if (snapshot.exists()) {
@@ -102,7 +108,7 @@ export const fetchReservedSeats = async (date, time) => {
         const userDataAsList = Object.values(userData);
         reservedFromBD = userDataAsList.map(({ seats }) => seats).flat();
       } else {
-        console.log("No data available");
+        console.log('No data available');
       }
     })
     .catch((error) => {
@@ -120,14 +126,14 @@ export const reserveSeat = ({ date, time, people }, seats) => {
   // TODO: consider checking db if reserved
   const reservationsRef = firebase
     .database()
-    .ref(user.uid + "/reservations/" + date + "/" + time);
+    .ref(`${user.uid}/reservations/${date}/${time}`);
   const newReservation = reservationsRef.push();
 
   newReservation.set({
     user: user.uid,
     people: people,
     seats: [...seats], // seats is Set
-    status: "reserved",
+    status: 'reserved'
   });
 };
 
@@ -136,6 +142,23 @@ export const isPeopleLessThanSelected = (noPeople, noSelected) =>
 
 export const checkEveryItemIncludes = (array, target) => {
   return target.every((item) => array.includes(item));
+};
+
+export const getMousePosition = (event) => {
+  const x = parseInt((event.clientX - GRID_ITEM.MARGIN_LEFT) / GRID.SIZE);
+  const y = parseInt((event.clientY - GRID_ITEM.MARGIN_TOP) / GRID.SIZE);
+  return [x, y];
+};
+
+export const getNewTextLabel = (x, y) => {
+  return {
+    id: `textLabel-${nanoid()}`,
+    x: x,
+    y: y,
+    value: '',
+    width: GRID.SIZE * TEXT_LABEL.INITIAL_WIDTH,
+    height: GRID.SIZE * TEXT_LABEL.INITIAL_HEIGHT
+  };
 };
 
 // export const fetchInitialPositions = async () => {
