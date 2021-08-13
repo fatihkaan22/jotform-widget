@@ -1,4 +1,6 @@
-import { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
+import { DateInput, TimeInput } from 'semantic-ui-calendar-react';
+import { createSnapModifier, restrictToWindowEdges } from '@dnd-kit/modifiers';
 import { Seat } from './Seat';
 import { Grid } from '../Grid';
 import './style.css';
@@ -18,8 +20,8 @@ import {
   getMousePosition,
   getNewTextLabel
 } from './utils';
-import { createSnapModifier, restrictToWindowEdges } from '@dnd-kit/modifiers';
 import { nanoid } from 'nanoid';
+import { Helmet } from 'react-helmet';
 import { Dropdown } from '../Dropdown';
 import {
   Input,
@@ -30,7 +32,6 @@ import {
   TransitionablePortal,
   Message
 } from 'semantic-ui-react';
-import { DateInput, TimeInput } from 'semantic-ui-calendar-react';
 import { MultiAddPopup } from './Seat/MultiAddPopup';
 import { GRID, PEOPLE } from '../../constants/input';
 import SEAT_TYPES_MAP from '../../constants/icons';
@@ -264,11 +265,17 @@ export const SeatingPlan = (props) => {
     <>
       {props.editable ? (
         <div className="menu-edit">
+          <Helmet>
+            <style>{'body { background-color: #3e4652; }'}</style>
+          </Helmet>
+          <div id="select-type-div">
+            <label id="select-type-text">Select type and add</label>
+          </div>
+          <br />
           <GridUI columns={2}>
             <GridUI.Column>
               <Form>
                 <Form.Field>
-                  <label>Select type and add</label>
                   <Dropdown
                     options={SEAT_TYPES_MAP}
                     value={selectedType}
@@ -290,7 +297,7 @@ export const SeatingPlan = (props) => {
                 trigger={
                   <Button
                     // active={addTextActive}
-                    icon="font"
+                    icon="pencil"
                     onClick={handleAddText}
                   />
                 }

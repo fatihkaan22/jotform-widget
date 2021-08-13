@@ -17,7 +17,7 @@ export const GRID = {
 
 export const GRID_ITEM = {
   MARGIN_LEFT: 1,
-  MARGIN_TOP: 71
+  MARGIN_TOP: 101
 };
 
 export const TEXT_LABEL = {
