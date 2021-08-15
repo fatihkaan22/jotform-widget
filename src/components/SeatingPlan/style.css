@@ -51,7 +51,7 @@
 
 /* Firefox */
 .no-spinner input[type='number'] {
-  -moz-appearance: textfield;
+  -moz-appearance: textfield !important;
 }
 
 .info-portal {
