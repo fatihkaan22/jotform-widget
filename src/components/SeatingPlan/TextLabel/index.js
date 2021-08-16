@@ -47,6 +47,14 @@ export const TextLabel = ({
   const sensors = useSensors(mouseSensor, touchSensor);
 
   const [text, setText] = useState(value);
+  const [width, setWidth] = useState(initialWidth);
+  const [height, setHeight] = useState(initialHeight);
+
+  const style = {
+    width: gridSize * 1 - 1,
+    height: gridSize * 1 - 1,
+    marginLeft: -gridSize
+  };
 
   const handleOnDragStart = () => {
     setInitialWindowScroll({
@@ -121,50 +129,37 @@ export const TextLabel = ({
     });
   };
 
-  const [width, setWidth] = useState(initialWidth);
-  const [height, setHeight] = useState(initialHeight);
-
-  const style = {
-    width: gridSize * 1 - 1,
-    height: gridSize * 1 - 1,
-    marginLeft: -gridSize
-  };
-
   return (
     <>
       <DndContext sensors={sensors}>
         <Wrapper>
-          <TranslatedItem
-            translate={translate}
-            innerComponent={{
-              component: (
-                <>
-                  {editable ? (
-                    <Resizable
-                      size={{
-                        width: width,
-                        height: height
-                      }}
-                      // enable={editable}
-                      minHeight={gridSize - 2}
-                      minWidth={gridSize - 2}
-                      grid={[gridSize, gridSize]}
-                      onResizeStop={updateSize}
-                    >
-                      <textarea value={text} onChange={updateTextValue} />
-                    </Resizable>
-                  ) : (
-                    <div
-                      className="preview-div"
-                      style={{ width: width, height: height }}
-                    >
-                      {text}
-                    </div>
-                  )}
-                </>
-              )
-            }}
-          />
+          <div className="Translated" style={getTranslateStyle(translate)}>
+            {editable ? (
+              <Resizable
+                size={{
+                  width: width,
+                  height: height
+                }}
+                minHeight={gridSize - 2}
+                minWidth={gridSize - 2}
+                grid={[gridSize, gridSize]}
+                onResizeStop={updateSize}
+              >
+                <textarea
+                  placeholder="Enter text..."
+                  value={text}
+                  onChange={updateTextValue}
+                />
+              </Resizable>
+            ) : (
+              <div
+                className="preview-div"
+                style={{ width: width, height: height }}
+              >
+                {text}
+              </div>
+            )}
+          </div>
         </Wrapper>
       </DndContext>
       {editable && (
@@ -189,14 +184,5 @@ export const TextLabel = ({
         </DndContext>
       )}
     </>
-  );
-};
-
-const TranslatedItem = ({ translate, innerComponent }) => {
-  const translatedStyle = getTranslateStyle(translate);
-  return (
-    <div className="Translated" style={translatedStyle}>
-      {innerComponent.component}
-    </div>
   );
 };
