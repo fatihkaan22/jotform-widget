@@ -1,5 +1,5 @@
 import firebase from 'firebase';
-import { GRID_ITEM } from '../../../constants/input';
+import { GRID_ITEM } from '../../../constants/common';
 
 export const getTranslateStyle = (translate) => {
   const shift = { x: GRID_ITEM.MARGIN_LEFT, y: GRID_ITEM.MARGIN_TOP };
@@ -16,12 +16,9 @@ export const updateSeatPositionsOnDB = (seat) => {
     console.log("ERROR: couldn't sign in");
     return;
   }
-  firebase
-    .database()
-    .ref(user.uid + '/seats/' + seat.id)
-    .set({
-      id: seat.id,
-      x: seat.x,
-      y: seat.y
-    });
+  firebase.database().ref(`${user.uid}/seats/${seat.id}`).set({
+    id: seat.id,
+    x: seat.x,
+    y: seat.y
+  });
 };

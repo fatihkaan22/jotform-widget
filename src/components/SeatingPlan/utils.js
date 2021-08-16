@@ -1,6 +1,6 @@
 import firebase from 'firebase';
 import { nanoid } from 'nanoid';
-import { GRID, GRID_ITEM, PEOPLE, TEXT_LABEL } from '../../constants/input';
+import { GRID, GRID_ITEM, PEOPLE, TEXT_LABEL } from '../../constants/common';
 
 // TODO: change structure - to avoid same user but different forms: /user/formId/seats
 export const fetchUserData = async () => {
@@ -15,9 +15,9 @@ export const fetchUserData = async () => {
     .then((snapshot) => {
       if (snapshot.exists()) {
         const userData = snapshot.val();
-        seatsFromDB = Object.values(userData.seats);
+        if (userData.seats) seatsFromDB = Object.values(userData.seats);
         seatTypeFromDB = userData.seatType;
-        textLabelsFromDB = Object.values(userData.texts);
+        if (userData.texts) textLabelsFromDB = Object.values(userData.texts);
       } else {
         console.log('No data available');
       }
