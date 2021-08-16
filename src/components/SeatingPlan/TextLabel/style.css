@@ -23,4 +23,5 @@ textarea {
   text-align: center;
   vertical-align: middle;
   display: table-cell;
+  border: 1px solid black;
 }
