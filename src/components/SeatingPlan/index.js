@@ -23,21 +23,14 @@ import {
 import { nanoid } from 'nanoid';
 import { Helmet } from 'react-helmet';
 import { Dropdown } from '../Dropdown';
-import {
-  Input,
-  Grid as GridUI,
-  Button,
-  Form,
-  Popup,
-  TransitionablePortal,
-  Message
-} from 'semantic-ui-react';
+import { Input, Grid as GridUI, Button, Form, Popup } from 'semantic-ui-react';
 import { MultiAddPopup } from './Seat/MultiAddPopup';
-import { GRID, PEOPLE } from '../../constants/input';
+import { GRID, PEOPLE } from '../../constants/common';
 import SEAT_TYPES_MAP from '../../constants/icons';
 import { TextLabel } from './TextLabel';
 import { updateTextLabelOnDB } from './TextLabel/utils';
 import { updateSeatPositionsOnDB } from './Seat/utils';
+import { PortalMessage } from './Message';
 
 export const SeatingPlan = (props) => {
   const [gridSize, setGridSize] = useState(GRID.SIZE);
@@ -63,6 +56,7 @@ export const SeatingPlan = (props) => {
   const [errorAllReserved, setErrorAllReserved] = useState(false);
   const [errorSelectSeat, setErrorSelectSeat] = useState(false);
   const [errorEmptyFields, setErrorEmptyFields] = useState(false);
+  const [infoAllSeatsAvailable, setInfoAllSeatsAvailable] = useState(false);
   const [addTextActive, setAddTextActive] = useState(false);
 
   useEffect(() => {
@@ -207,6 +201,9 @@ export const SeatingPlan = (props) => {
       if (checkEveryItemIncludes(reservedFromBD, seatIds)) {
         setErrorAllReserved(true);
       }
+      if (reservedFromBD.length === 0) {
+        setInfoAllSeatsAvailable(true);
+      }
     };
     getReserved();
   };
@@ -293,14 +290,7 @@ export const SeatingPlan = (props) => {
               <Popup
                 content={'Add text'}
                 position="bottom center"
-                // TODO: change icon
-                trigger={
-                  <Button
-                    // active={addTextActive}
-                    icon="pencil"
-                    onClick={handleAddText}
-                  />
-                }
+                trigger={<Button icon="pencil" onClick={handleAddText} />}
               />
               <MultiAddPopup onSubmit={handleMultiAddButtonClick} />
               <Popup
@@ -369,37 +359,38 @@ export const SeatingPlan = (props) => {
                 content="Check Availability"
                 onClick={handleCheckAvailability}
               />
-              <TransitionablePortal
+              <PortalMessage
                 open={errorAllReserved}
                 onClose={() => setErrorAllReserved(false)}
-              >
-                <Message error className="info-portal">
-                  <Message.Header>All seats are reserved</Message.Header>
-                  <p>{`There are no available seats on ${fieldState.date} at ${fieldState.time}.`}</p>
-                </Message>
-              </TransitionablePortal>
-              <TransitionablePortal
+                header="All seats are reserved"
+                text={`There are no available seats on ${fieldState.date} at ${fieldState.time}.`}
+                error
+              />
+              <PortalMessage
                 open={errorSelectSeat}
                 onClose={() => setErrorSelectSeat(false)}
-              >
-                <Message warning className="info-portal">
-                  <Message.Header>Couldn't make selection</Message.Header>
-                  <p>{`You can not select seats more than number of people (${fieldState.people}).`}</p>
-                </Message>
-              </TransitionablePortal>
-              <TransitionablePortal
+                header="Couldn't make selection"
+                text={`You can not select seats more than number of people (${fieldState.people}).`}
+                warning
+              />
+              <PortalMessage
                 open={errorEmptyFields}
                 onClose={() => setErrorEmptyFields(false)}
+                header="Fields are empty"
+                warning
               >
-                <Message warning className="info-portal">
-                  <Message.Header>Fields are empty</Message.Header>
-                  <p>
-                    Couldn't check availability.
-                    <br />
-                    Please make sure fill the date and time fields
-                  </p>
-                </Message>
-              </TransitionablePortal>
+                <p>
+                  Couldn't check availability.
+                  <br />
+                  Please make sure fill the date and time fields
+                </p>
+              </PortalMessage>
+              <PortalMessage
+                open={infoAllSeatsAvailable}
+                onClose={() => setInfoAllSeatsAvailable(false)}
+                header="All seats are available"
+                text={`You can select any seat you want`}
+              />
               <Button icon="angle up" onClick={handleUp} />
             </GridUI.Column>
           </GridUI>
