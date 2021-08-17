@@ -4,7 +4,7 @@
 <head>
   <meta charset="utf-8" />
   <!-- TODO: change favicon -->
-  <link rel="icon" href="%PUBLIC_URL%/favicon.ico" /> 
+  <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="theme-color" content="#000000" />
   <meta name="description" content="Web site created using create-react-app" />
@@ -14,6 +14,7 @@
       user's mobile device or desktop. See https://developers.google.com/web/fundamentals/web-app-manifest/
     -->
   <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
+  <script src="//js.jotform.com/JotFormCustomWidget.min.js"></script>
   <!--
       Notice the use of %PUBLIC_URL% in the tags above.
       It will be replaced with the URL of the `public` folder during the build.
@@ -39,17 +40,16 @@
       To begin the development, run `npm start` or `yarn start`.
       To create a production bundle, use `npm run build` or `yarn build`.
     -->
-
   <script type="text/javascript">
-    (function () {
-      var po = document.createElement('script'); po.type = 'text/javascript'; po.async = true;
-      po.src = '//js.jotform.com/JotFormCustomWidget.min.js?onload=onLoadCallback';
-      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(po, s);
-    })();
     JFCustomWidget.subscribe("ready", function () {
-      console.log("ready - triggered");
+      JFCustomWidget.subscribe("submit", function () {
+        const data = window.JFData;
+        const res = JFCustomWidget.sendSubmit(data);
+        window.JFSubmit();
+      });
     });
   </script>
+
 </body>
 
 </html>

@@ -18,7 +18,9 @@ import {
   checkEveryItemIncludes,
   deleteTextFromDB,
   getMousePosition,
-  getNewTextLabel
+  getNewTextLabel,
+  isFieldsValid,
+  isSelectedSeatsValid
 } from './utils';
 import { nanoid } from 'nanoid';
 import { Helmet } from 'react-helmet';
@@ -70,6 +72,40 @@ export const SeatingPlan = (props) => {
     getData();
   }, []); // []: only runs in initial render
 
+  useEffect(() => {
+    window.JFData = {};
+    window.JFData.valid =
+      isFieldsValid(fieldState) && isSelectedSeatsValid(selectedSeats);
+    window.JFData.value = `Date: ${fieldState.date}
+Time:  ${fieldState.time}
+People:  ${fieldState.people}
+Seats:  ${[...selectedSeats]}`;
+    console.log(window.JFData);
+  }, [fieldState, selectedSeats]);
+
+  const makeReservation = (event) => {
+    console.log(fieldState);
+    console.log(selectedSeats);
+    if (
+      !fieldState.date ||
+      !fieldState.time ||
+      !fieldState.people ||
+      !selectedSeats ||
+      selectedSeats.size === 0
+    ) {
+      setErrorEmptyFields(true);
+      console.log('ERROR: empty fields');
+      return;
+    }
+    reserveSeat(fieldState, selectedSeats);
+    setSelectedSeats(new Set());
+  };
+
+  useEffect(() => {
+    // JFSubmit will be called when Submit button is clicked
+    window.JFSubmit = makeReservation;
+  }, [selectedSeats]);
+
   const addTextOnMouseClick = (event) => {
     const [x, y] = getMousePosition(event);
     // y > 0: inside of the grid
@@ -82,20 +118,19 @@ export const SeatingPlan = (props) => {
 
   // for adding text
   useEffect(() => {
-    console.log('addText', addTextActive);
     if (addTextActive) {
       document.addEventListener('click', addTextOnMouseClick);
       document.getElementsByTagName('body')[0].style.cursor = 'copy'; // TODO: consider 'text'
     }
     return () => {
-      console.log('cleanup');
       document.removeEventListener('click', addTextOnMouseClick);
       document.getElementsByTagName('body')[0].style.cursor = '';
     };
   }, [addTextActive]);
 
   const handleAddButtonClick = () => {
-    setSeats([...seats, { id: 'seat-' + nanoid(), x: 0, y: 0 }]);
+    setSeats([...seats, { id: 'seat-' + nanoid(8), x: 0, y: 0 }]);
+    // window.JFCustomWidget.sendReady({ type: '' });
   };
 
   const handleAddText = () => {
@@ -208,23 +243,6 @@ export const SeatingPlan = (props) => {
     getReserved();
   };
 
-  // for debugging purposes; to simulate submit
-  const handleUp = (event) => {
-    if (
-      !fieldState.date ||
-      !fieldState.time ||
-      !fieldState.people ||
-      !selectedSeats ||
-      selectedSeats.size === 0
-    ) {
-      setErrorEmptyFields(true);
-      console.log('ERROR: empty fields');
-      return;
-    }
-    reserveSeat(fieldState, selectedSeats);
-    setSelectedSeats(new Set());
-  };
-
   const seatList = seats.map((seat) => (
     <Seat
       id={seat.id}
@@ -260,6 +278,7 @@ export const SeatingPlan = (props) => {
 
   return (
     <>
+      {/* <canvas id="myCanvas" width="200" height="100"></canvas> */}
       {props.editable ? (
         <div className="menu-edit">
           <Helmet>

@@ -161,44 +161,15 @@ export const getNewTextLabel = (x, y) => {
   };
 };
 
-// export const fetchInitialPositions = async () => {
-//   const user = firebase.auth().currentUser;
-//   const dbRef = firebase.database().ref();
-//   let updatedSeats = [];
-//   await dbRef
-//     .child(user.uid)
-//     .child("seats")
-//     .get()
-//     .then((snapshot) => {
-//       if (snapshot.exists()) {
-//         updatedSeats = Object.values(snapshot.val());
-//       } else {
-//         console.log("No data available");
-//       }
-//     })
-//     .catch((error) => {
-//       console.error(error);
-//     });
-//   return updatedSeats;
-// };
+export const isFieldsValid = (fieldState) => {
+  return (
+    fieldState.date !== '' &&
+    fieldState.time !== '' &&
+    fieldState.people >= PEOPLE.MIN &&
+    fieldState.people <= PEOPLE.MAX
+  );
+};
 
-// export const fetchSeatType = async () => {
-//   const user = firebase.auth().currentUser;
-//   const dbRef = firebase.database().ref();
-//   let seatType = "";
-//   await dbRef
-//     .child(user.uid)
-//     .child("seatType")
-//     .get()
-//     .then((snapshot) => {
-//       if (snapshot.exists()) {
-//         seatType = snapshot.val();
-//       } else {
-//         console.log("No data available");
-//       }
-//     })
-//     .catch((error) => {
-//       console.error(error);
-//     });
-//   return seatType;
-// };
+export const isSelectedSeatsValid = (selectedSeats) => {
+  return selectedSeats.size > 0;
+};
