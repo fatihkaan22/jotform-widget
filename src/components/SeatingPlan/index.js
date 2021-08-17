@@ -410,7 +410,6 @@ Seats:  ${[...selectedSeats]}`;
                 header="All seats are available"
                 text={`You can select any seat you want`}
               />
-              <Button icon="angle up" onClick={handleUp} />
             </GridUI.Column>
           </GridUI>
         </div>
