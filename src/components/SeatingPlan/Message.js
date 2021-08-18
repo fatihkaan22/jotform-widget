@@ -10,6 +10,7 @@ export const PortalMessage = ({
   text,
   error,
   warning,
+  success,
   children
 }) => {
   const [hide, setHide] = useState(false);
@@ -32,7 +33,7 @@ export const PortalMessage = ({
   return (
     <>
       <TransitionablePortal open={open} onClose={onClose}>
-        <Message error={error} warning={warning} className="info-portal">
+        <Message error={error} warning={warning} success={success} className="info-portal">
           <Message.Header>{header}</Message.Header>
           {text ? <p>{text}</p> : undefined}
           {children}

@@ -427,6 +427,7 @@ export const SeatingPlan = (props) => {
                 onClose={() => setInfoAllSeatsAvailable(false)}
                 header="All seats are available"
                 text={`You can select any seat you want`}
+                success
               />
               <PortalMessage
                 open={errorCheckAvailability}
