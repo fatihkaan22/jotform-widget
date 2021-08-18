@@ -114,7 +114,7 @@ export const SeatingPlan = (props) => {
   };
 
   useEffect(() => {
-    // JFSubmit will be called when Submit button is clicked
+    // JFSubmit will be called when Submit button is clicked on the form
     window.JFSubmit = makeReservation;
   }, [selectedSeats]);
 
@@ -142,6 +142,10 @@ export const SeatingPlan = (props) => {
 
   const handleAddButtonClick = () => {
     setSeats([...seats, { id: 'seat-' + nanoid(8), x: 0, y: 0 }]);
+    window.JFCustomWidget.requestFrameResize({
+      height: 400,
+      width: 300
+    });
     // window.JFCustomWidget.sendReady({ type: '' });
   };
 
@@ -296,7 +300,6 @@ export const SeatingPlan = (props) => {
 
   return (
     <>
-      {/* <canvas id="myCanvas" width="200" height="100"></canvas> */}
       {props.editable ? (
         <div className="menu-edit">
           <Helmet>
