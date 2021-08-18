@@ -58,8 +58,10 @@ export const SeatingPlan = (props) => {
   const [errorAllReserved, setErrorAllReserved] = useState(false);
   const [errorSelectSeat, setErrorSelectSeat] = useState(false);
   const [errorEmptyFields, setErrorEmptyFields] = useState(false);
+  const [errorCheckAvailability, setErrorCheckAvailability] = useState(false);
   const [infoAllSeatsAvailable, setInfoAllSeatsAvailable] = useState(false);
   const [addTextActive, setAddTextActive] = useState(false);
+  const [selectSeatActive, setSelectSeatActive] = useState(false);
 
   useEffect(() => {
     const getData = async () => {
@@ -182,6 +184,10 @@ export const SeatingPlan = (props) => {
   };
 
   const selectSeat = (seatId) => {
+    if (!selectSeatActive) {
+      setErrorCheckAvailability(true);
+      return;
+    }
     if (isPeopleLessThanSelected(fieldState.people, selectedSeats.size)) {
       setErrorSelectSeat(true);
       return;
@@ -203,6 +209,7 @@ export const SeatingPlan = (props) => {
     //clear selected/reserved seats
     setSelectedSeats(new Set());
     setReservedSeats([]);
+    setSelectSeatActive(false);
     if (fieldState.hasOwnProperty(name)) {
       setFieldState({ ...fieldState, [name]: value });
     }
@@ -251,6 +258,7 @@ export const SeatingPlan = (props) => {
       }
     };
     getReserved();
+    setSelectSeatActive(true);
   };
 
   const seatList = seats.map((seat) => (
@@ -310,7 +318,7 @@ export const SeatingPlan = (props) => {
                 </Form.Field>
               </Form>
             </GridUI.Column>
-            <GridUI.Column id="menu-button-group"  verticalAlign="bottom">
+            <GridUI.Column id="menu-button-group" verticalAlign="bottom">
               <Popup
                 content={'Add object'}
                 position="bottom center"
@@ -419,6 +427,13 @@ export const SeatingPlan = (props) => {
                 onClose={() => setInfoAllSeatsAvailable(false)}
                 header="All seats are available"
                 text={`You can select any seat you want`}
+              />
+              <PortalMessage
+                open={errorCheckAvailability}
+                onClose={() => setErrorCheckAvailability(false)}
+                header="Please click 'Check Availability' button first"
+                text={'Selection can be made after checking availability.'}
+                warning
               />
             </GridUI.Column>
           </GridUI>
