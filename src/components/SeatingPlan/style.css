@@ -76,3 +76,7 @@
   backgroundcolor: '#0293e2';
   margin-top: 8px;
 }
+
+#menu-button-group {
+  padding-left: 0;
+}

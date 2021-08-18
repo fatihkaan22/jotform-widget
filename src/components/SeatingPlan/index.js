@@ -299,7 +299,7 @@ export const SeatingPlan = (props) => {
           </div>
           <br />
           <GridUI columns={2}>
-            <GridUI.Column>
+            <GridUI.Column width={6}>
               <Form>
                 <Form.Field>
                   <Dropdown
@@ -310,7 +310,7 @@ export const SeatingPlan = (props) => {
                 </Form.Field>
               </Form>
             </GridUI.Column>
-            <GridUI.Column verticalAlign="bottom">
+            <GridUI.Column id="menu-button-group"  verticalAlign="bottom">
               <Popup
                 content={'Add object'}
                 position="bottom center"
@@ -324,7 +324,7 @@ export const SeatingPlan = (props) => {
               <MultiAddPopup onSubmit={handleMultiAddButtonClick} />
               <Popup
                 content="To remove objects move outside of the grid."
-                position="bottom center"
+                position="bottom right"
                 trigger={<Button icon="trash" />}
               />
             </GridUI.Column>

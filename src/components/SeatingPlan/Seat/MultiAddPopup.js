@@ -29,7 +29,7 @@ export const MultiAddPopup = ({ onSubmit }) => {
       trigger={<Button icon="th" />}
       flowing
       hoverable
-      position="bottom center"
+      position="bottom right"
     >
       <p>Add multiple objects</p>
       <Form onSubmit={handleSubmit}>
