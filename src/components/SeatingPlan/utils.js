@@ -251,3 +251,8 @@ export const getUrlWithUid = () => {
     firebase.auth().currentUser.uid
   }`;
 };
+
+export const getItemStyle = () => ({
+  width: GRID.SIZE * GRID.ITEM_WIDTH - 1,
+  height: GRID.SIZE * GRID.ITEM_HEIGHT - 1
+});

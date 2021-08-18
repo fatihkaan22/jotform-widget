@@ -1,0 +1,14 @@
+#reservation-details-card {
+  margin: auto;
+  margin-top: 30px;
+  width: 30%;
+  min-width: 300px;
+}
+
+#reservation-details-extra {
+  height: 300px;
+}
+
+#reservation-details-seat-wrapper {
+  margin-top: -100px;
+}

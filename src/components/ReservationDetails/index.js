@@ -1,15 +1,16 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import firebase from 'firebase';
 import { useLocation } from 'react-router-dom';
 import queryString from 'query-string';
-import { fetchUserData } from '../SeatingPlan/utils';
+import { createSnapModifier, restrictToWindowEdges } from '@dnd-kit/modifiers';
+import { Card, Icon, Image } from 'semantic-ui-react';
+import QRCode from 'qrcode';
+import { fetchUserData, getItemStyle } from '../SeatingPlan/utils';
 import SEAT_TYPES_MAP from '../../constants/icons';
 import { Seat } from '../SeatingPlan/Seat';
 import { GRID } from '../../constants/common';
-import { createSnapModifier, restrictToWindowEdges } from '@dnd-kit/modifiers';
 import { TextLabel } from '../SeatingPlan/TextLabel';
-import { Card, Icon, Image } from 'semantic-ui-react';
-import QRCode from 'qrcode';
+import './style.css';
+import { fetchReservation } from './utils';
 
 export const ReservationDetails = (props) => {
   const { search } = useLocation();
@@ -25,35 +26,7 @@ export const ReservationDetails = (props) => {
   const defaultType = Object.keys(SEAT_TYPES_MAP)[0];
   const [selectedType, setSelectedType] = useState(defaultType);
   const snapToGrid = useMemo(() => createSnapModifier(GRID.SIZE), [GRID.SIZE]);
-  const itemStyle = {
-    width: GRID.SIZE * GRID.ITEM_WIDTH - 1,
-    height: GRID.SIZE * GRID.ITEM_HEIGHT - 1
-  };
   const [qrCode, setQrCode] = useState('');
-
-  const fetchReservation = async ({ uid, id }) => {
-    const dbRef = firebase.database().ref();
-    const path = `${uid}/reservationList/${id}`;
-    await dbRef
-      .child(path)
-      .get()
-      .then((snapshot) => {
-        if (snapshot.exists()) {
-          const userData = snapshot.val();
-          setReservationDetails({
-            date: userData.date,
-            time: userData.time,
-            people: userData.people,
-            seats: userData.seats
-          });
-        } else {
-          console.log('No data available');
-        }
-      })
-      .catch((error) => {
-        console.error(error);
-      });
-  };
 
   useEffect(() => {
     const getData = async () => {
@@ -63,9 +36,13 @@ export const ReservationDetails = (props) => {
       setSelectedType(seatTypeFromDB ? seatTypeFromDB : defaultType);
       setTextLabels(textLabelsFromDB ? textLabelsFromDB : []);
     };
+    const getReservationDetails = async () => {
+      const reservationFromDB = await fetchReservation({ uid: uid, id: id });
+      setReservationDetails(reservationFromDB);
+    };
     getData();
-    fetchReservation({ uid: uid, id: id });
-  }, []); // []: only runs in initial render
+    getReservationDetails();
+  }, []);
 
   useEffect(() => {
     QRCode.toDataURL(window.location.href)
@@ -83,7 +60,7 @@ export const ReservationDetails = (props) => {
       id={seat.id}
       key={seat.id}
       coordinates={{ x: seat.x, y: seat.y }}
-      style={itemStyle}
+      style={getItemStyle()}
       modifiers={[snapToGrid, restrictToWindowEdges]}
       gridSize={GRID.SIZE}
       draggable={false}
@@ -103,16 +80,13 @@ export const ReservationDetails = (props) => {
       value={textLabel.value}
       initialWidth={textLabel.width}
       initialHeight={textLabel.height}
-      itemStyle={{ marginTop: -100 }}
     />
   ));
 
   return (
     <div>
       {id ? (
-        <Card
-          style={{ margin: 'auto', marginTop: 30, width: '30%', minWidth: 300 }}
-        >
+        <Card id="reservation-details-card">
           <Image src={qrCode} />
           <Card.Content>
             <Card.Header>Reservation Details</Card.Header>
@@ -127,8 +101,8 @@ export const ReservationDetails = (props) => {
               {reservationDetails.people}
             </Card.Description>
           </Card.Content>
-          <Card.Content extra style={{ height: 300 }}>
-            <div style={{ marginTop: -100 }}>
+          <Card.Content extra id="reservation-details-extra">
+            <div id="reservation-details-seat-wrapper">
               {seatList}
               {textLabelList}
             </div>

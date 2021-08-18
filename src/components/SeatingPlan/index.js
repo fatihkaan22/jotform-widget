@@ -22,7 +22,8 @@ import {
   getNewTextLabel,
   isFieldsValid,
   isSelectedSeatsValid,
-  getUrlWithUid
+  getUrlWithUid,
+  getItemStyle
 } from './utils';
 import { nanoid } from 'nanoid';
 import { Helmet } from 'react-helmet';
@@ -40,11 +41,6 @@ import prettyjson from 'prettyjson';
 
 export const SeatingPlan = (props) => {
   const [gridSize, setGridSize] = useState(GRID.SIZE);
-  const itemStyle = {
-    width: gridSize * GRID.ITEM_WIDTH - 1,
-    height: gridSize * GRID.ITEM_HEIGHT - 1
-  };
-
   // TODO: consider putting states in a single object
   const [seats, setSeats] = useState([]);
   const [textLabels, setTextLabels] = useState([]);
@@ -262,7 +258,7 @@ export const SeatingPlan = (props) => {
       id={seat.id}
       key={seat.id}
       coordinates={{ x: seat.x, y: seat.y }}
-      style={itemStyle}
+      style={getItemStyle()}
       modifiers={[snapToGrid, restrictToWindowEdges]}
       gridSize={gridSize}
       deleteSeat={deleteSeat}
