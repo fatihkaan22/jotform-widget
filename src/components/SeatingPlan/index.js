@@ -307,7 +307,7 @@ export const SeatingPlan = (props) => {
           </div>
           <br />
           <GridUI columns={2}>
-            <GridUI.Column width={6}>
+            <GridUI.Column width={7}>
               <Form>
                 <Form.Field>
                   <Dropdown
