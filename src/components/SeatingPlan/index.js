@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
+import firebase from 'firebase';
 import { DateInput, TimeInput } from 'semantic-ui-calendar-react';
 import { createSnapModifier, restrictToWindowEdges } from '@dnd-kit/modifiers';
 import { Seat } from './Seat';
@@ -20,7 +21,8 @@ import {
   getMousePosition,
   getNewTextLabel,
   isFieldsValid,
-  isSelectedSeatsValid
+  isSelectedSeatsValid,
+  getUrlWithUid
 } from './utils';
 import { nanoid } from 'nanoid';
 import { Helmet } from 'react-helmet';
@@ -33,6 +35,8 @@ import { TextLabel } from './TextLabel';
 import { updateTextLabelOnDB } from './TextLabel/utils';
 import { updateSeatPositionsOnDB } from './Seat/utils';
 import { PortalMessage } from './Message';
+import QRCode from 'qrcode';
+import prettyjson from 'prettyjson';
 
 export const SeatingPlan = (props) => {
   const [gridSize, setGridSize] = useState(GRID.SIZE);
@@ -73,14 +77,23 @@ export const SeatingPlan = (props) => {
   }, []); // []: only runs in initial render
 
   useEffect(() => {
-    window.JFData = {};
+    if (!window.JFData) window.JFData = {};
     window.JFData.valid =
       isFieldsValid(fieldState) && isSelectedSeatsValid(selectedSeats);
-    window.JFData.value = `Date: ${fieldState.date}
-Time:  ${fieldState.time}
-People:  ${fieldState.people}
-Seats:  ${[...selectedSeats]}`;
+
+    const reservationDetails = {
+      Date: fieldState.date,
+      Time: fieldState.time,
+      People: fieldState.people,
+      Details: getUrlWithUid()
+      // Seats: [...selectedSeats]
+    };
+    console.log(window.location.origin);
+
+    window.JFData.value = prettyjson.render(reservationDetails);
+
     console.log(window.JFData);
+    console.log(window.JFData.value);
   }, [fieldState, selectedSeats]);
 
   const makeReservation = (event) => {
@@ -97,8 +110,9 @@ Seats:  ${[...selectedSeats]}`;
       console.log('ERROR: empty fields');
       return;
     }
-    reserveSeat(fieldState, selectedSeats);
+    const reservationId = reserveSeat(fieldState, selectedSeats);
     setSelectedSeats(new Set());
+    return reservationId;
   };
 
   useEffect(() => {

@@ -43,9 +43,12 @@
   <script type="text/javascript">
     JFCustomWidget.subscribe("ready", function () {
       JFCustomWidget.subscribe("submit", function () {
-        const data = window.JFData;
+        const reservationId = window.JFSubmit();
+        const data = {
+          valid: window.JFData.valid,
+          value: `${window.JFData.value}&id=${reservationId}`
+        };
         const res = JFCustomWidget.sendSubmit(data);
-        window.JFSubmit();
       });
     });
   </script>

@@ -3,14 +3,17 @@ import { nanoid } from 'nanoid';
 import { GRID, GRID_ITEM, PEOPLE, TEXT_LABEL } from '../../constants/common';
 
 // TODO: change structure - to avoid same user but different forms: /user/formId/seats
-export const fetchUserData = async () => {
-  const user = firebase.auth().currentUser;
+export const fetchUserData = async (uid) => {
+  let userId = uid;
+  if (!uid) {
+    userId = firebase.auth().currentUser.uid;
+  }
   const dbRef = firebase.database().ref();
   let seatsFromDB = [];
   let textLabelsFromDB = [];
   let seatTypeFromDB;
   await dbRef
-    .child(user.uid)
+    .child(userId)
     .get()
     .then((snapshot) => {
       if (snapshot.exists()) {
@@ -95,9 +98,32 @@ export const getCurrentDate = () => {
   return date;
 };
 
+// export const fetchReservedSeats = async (date, time) => {
+//   const user = firebase.auth().currentUser;
+//   const dbRef = firebase.database().ref();
+//   let reservedFromBD = [];
+//   await dbRef
+//     .child(`${user.uid}/reservations/${date}/${time}`)
+//     .get()
+//     .then((snapshot) => {
+//       if (snapshot.exists()) {
+//         const userData = snapshot.val();
+//         const userDataAsList = Object.values(userData);
+//         reservedFromBD = userDataAsList.map(({ seats }) => seats).flat();
+//       } else {
+//         console.log('No data available');
+//       }
+//     })
+//     .catch((error) => {
+//       console.error(error);
+//     });
+//   return reservedFromBD;
+// };
+
 export const fetchReservedSeats = async (date, time) => {
   const user = firebase.auth().currentUser;
   const dbRef = firebase.database().ref();
+  let reservationIds;
   let reservedFromBD = [];
   await dbRef
     .child(`${user.uid}/reservations/${date}/${time}`)
@@ -105,8 +131,7 @@ export const fetchReservedSeats = async (date, time) => {
     .then((snapshot) => {
       if (snapshot.exists()) {
         const userData = snapshot.val();
-        const userDataAsList = Object.values(userData);
-        reservedFromBD = userDataAsList.map(({ seats }) => seats).flat();
+        reservationIds = Object.keys(userData);
       } else {
         console.log('No data available');
       }
@@ -114,8 +139,50 @@ export const fetchReservedSeats = async (date, time) => {
     .catch((error) => {
       console.error(error);
     });
+  if (!reservationIds) {
+    return reservedFromBD;
+  }
+  await Promise.all(
+    reservationIds.map(async (reservationId) => {
+      await dbRef
+        .child(`${user.uid}/reservationList/${reservationId}`)
+        .get()
+        .then((snapshot) => {
+          if (snapshot.exists()) {
+            const userData = snapshot.val();
+            reservedFromBD = [...reservedFromBD, ...userData.seats];
+          } else {
+            console.log('No data available');
+          }
+        })
+        .catch((error) => {
+          console.error(error);
+        });
+    })
+  );
   return reservedFromBD;
 };
+
+// export const reserveSeat = ({ date, time, people }, seats) => {
+//   const user = firebase.auth().currentUser;
+//   if (!user) {
+//     console.log("ERROR: couldn't sign in");
+//     return;
+//   }
+//   // TODO: consider checking db if reserved
+//   const reservationsRef = firebase
+//     .database()
+//     .ref(`${user.uid}/reservations/${date}/${time}`);
+//   const newReservation = reservationsRef.push();
+
+//   newReservation.set({
+//     user: user.uid,
+//     people: people,
+//     seats: [...seats], // seats is Set
+//     status: 'reserved'
+//   });
+//   return newReservation.getKey();
+// };
 
 export const reserveSeat = ({ date, time, people }, seats) => {
   const user = firebase.auth().currentUser;
@@ -124,17 +191,22 @@ export const reserveSeat = ({ date, time, people }, seats) => {
     return;
   }
   // TODO: consider checking db if reserved
-  const reservationsRef = firebase
-    .database()
-    .ref(`${user.uid}/reservations/${date}/${time}`);
+  const userRef = firebase.database().ref(`${user.uid}`);
+  const reservationsRef = userRef.child('reservationList');
   const newReservation = reservationsRef.push();
 
   newReservation.set({
     user: user.uid,
+    date: date,
+    time: time,
     people: people,
     seats: [...seats], // seats is Set
     status: 'reserved'
   });
+  const reservationId = newReservation.getKey();
+  userRef.child(`reservations/${date}/${time}/${reservationId}`).set(true);
+
+  return reservationId;
 };
 
 export const isPeopleLessThanSelected = (noPeople, noSelected) =>
@@ -172,4 +244,10 @@ export const isFieldsValid = (fieldState) => {
 
 export const isSelectedSeatsValid = (selectedSeats) => {
   return selectedSeats.size > 0;
+};
+
+export const getUrlWithUid = () => {
+  return `https://jotform-widget.netlify.app/reservation?uid=${
+    firebase.auth().currentUser.uid
+  }`;
 };
