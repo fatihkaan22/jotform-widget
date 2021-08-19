@@ -5,6 +5,8 @@ import 'semantic-ui-css/semantic.min.css';
 import { useAuthState } from 'react-firebase-hooks/auth';
 import { SeatingPlan } from './components/SeatingPlan';
 import { ReservationDetails } from './components/ReservationDetails';
+import { SendMail } from './components/SendMail';
+import { Approval } from './components/Approval';
 
 firebase.initializeApp({
   apiKey: 'AIzaSyDv_nMpzqPHatfTCJLAJCXayvxkg0nhW2Q',
@@ -36,6 +38,12 @@ const App = () => {
       <Switch>
         <Route path="/reservation/">
           <ReservationDetails />
+        </Route>
+        <Route path="/sendmail/">
+          <SendMail />
+        </Route>
+        <Route path="/approval/">
+          <Approval />
         </Route>
         <Route path="/edit">{user ? <EditPage /> : ''}</Route>
         <Route path="/preview">{user ? <PreviewPage /> : ''}</Route>

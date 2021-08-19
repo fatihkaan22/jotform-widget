@@ -14,7 +14,8 @@ export const fetchReservation = async ({ uid, id }) => {
           date: userData.date,
           time: userData.time,
           people: userData.people,
-          seats: userData.seats
+          seats: userData.seats,
+          status: userData.status
         };
       } else {
         console.log('No data available');

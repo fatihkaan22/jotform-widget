@@ -19,7 +19,8 @@ export const ReservationDetails = (props) => {
     date: '',
     time: '',
     people: '',
-    seats: []
+    seats: [],
+    status: ''
   });
   const [seats, setSeats] = useState([]);
   const [textLabels, setTextLabels] = useState([]);
@@ -45,9 +46,14 @@ export const ReservationDetails = (props) => {
   }, []);
 
   useEffect(() => {
-    QRCode.toDataURL(window.location.href)
+    const searchParams = queryString.stringify({
+      uid: uid,
+      id: id
+    });
+    const sendMailUrl = `${window.location.origin}/sendmail?${searchParams}`;
+    console.log(sendMailUrl);
+    QRCode.toDataURL(sendMailUrl)
       .then((url) => {
-        console.log(url);
         setQrCode(url);
       })
       .catch((err) => {
@@ -87,7 +93,39 @@ export const ReservationDetails = (props) => {
     <div>
       {id ? (
         <Card id="reservation-details-card">
-          <Image src={qrCode} />
+          {reservationDetails.status === '' ? (
+            <div id="reservation-details-placeholder" />
+          ) : (
+            <>
+              {reservationDetails.status === 'reserved' ? (
+                <Image id="reservation-details-image" src={qrCode} />
+              ) : (
+                ''
+              )}
+              <div id="reservation-details-icon-wrapper">
+                {reservationDetails.status === 'approved' ? (
+                  <Icon
+                    className="reservation-detail-icon"
+                    name="calendar check outline"
+                    color="green"
+                    size="massive"
+                  />
+                ) : (
+                  ''
+                )}
+                {reservationDetails.status === 'denied' ? (
+                  <Icon
+                    className="reservation-detail-icon"
+                    name="calendar times outline"
+                    color="red"
+                    size="massive"
+                  />
+                ) : (
+                  ''
+                )}
+              </div>
+            </>
+          )}
           <Card.Content>
             <Card.Header>Reservation Details</Card.Header>
             <Card.Description>

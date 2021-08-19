@@ -28,3 +28,10 @@ export const TEXT_LABEL = {
 };
 
 export const MESSAGE_TIMEOUT = 3000;
+
+export const DOMAIN = 'https://jotform-widget.netlify.app';
+
+export const ACTION_STATUS_MAP = {
+  approve: 'approved',
+  deny: 'denied'
+};
