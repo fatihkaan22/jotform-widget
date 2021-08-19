@@ -33,6 +33,11 @@ const App = () => {
 
   const auth = firebase.auth();
   const [user] = useAuthState(auth);
+
+  const { formID } = window.JFCustomWidget.getWidgetData();
+  window.JFid = formID;
+  console.log('JFid', window.JFid);
+
   return (
     <Router>
       <Switch>

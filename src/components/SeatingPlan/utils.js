@@ -6,7 +6,7 @@ import { GRID, GRID_ITEM, PEOPLE, TEXT_LABEL } from '../../constants/common';
 export const fetchUserData = async (uid) => {
   let userId = uid;
   if (!uid) {
-    userId = firebase.auth().currentUser.uid;
+    userId = window.JFId || firebase.auth().currentUser.uid;
   }
   const dbRef = firebase.database().ref();
   let seatsFromDB = [];
@@ -32,30 +32,30 @@ export const fetchUserData = async (uid) => {
 };
 
 export const deleteSeatFromDB = (seatId) => {
-  const user = firebase.auth().currentUser;
-  if (!user) {
+  const userId = window.JFId || firebase.auth().currentUser.uid;
+  if (!userId) {
     console.log("ERROR: couldn't sign in");
     return;
   }
-  firebase.database().ref(`${user.uid}/seats/${seatId}`).set({});
+  firebase.database().ref(`${userId}/seats/${seatId}`).set({});
 };
 
 export const deleteTextFromDB = (textId) => {
-  const user = firebase.auth().currentUser;
-  if (!user) {
+  const userId = window.JFId || firebase.auth().currentUser.uid;
+  if (!userId) {
     console.log("ERROR: couldn't sign in");
     return;
   }
-  firebase.database().ref(`${user.uid}/texts/${textId}`).set({});
+  firebase.database().ref(`${userId}/texts/${textId}`).set({});
 };
 
 export const updateSeatTypeOnDB = (seatType) => {
-  const user = firebase.auth().currentUser;
-  if (!user) {
+  const userId = window.JFId || firebase.auth().currentUser.uid;
+  if (!userId) {
     console.log("ERROR: couldn't sign in");
     return;
   }
-  firebase.database().ref(`${user.uid}/seatType/`).set(seatType);
+  firebase.database().ref(`${userId}/seatType/`).set(seatType);
 };
 
 export const getMultiSeats = (
@@ -121,12 +121,12 @@ export const getCurrentDate = () => {
 // };
 
 export const fetchReservedSeats = async (date, time) => {
-  const user = firebase.auth().currentUser;
+  const userId = window.JFId || firebase.auth().currentUser.uid;
   const dbRef = firebase.database().ref();
   let reservationIds;
   let reservedFromBD = [];
   await dbRef
-    .child(`${user.uid}/reservations/${date}/${time}`)
+    .child(`${userId}/reservations/${date}/${time}`)
     .get()
     .then((snapshot) => {
       if (snapshot.exists()) {
@@ -145,7 +145,7 @@ export const fetchReservedSeats = async (date, time) => {
   await Promise.all(
     reservationIds.map(async (reservationId) => {
       await dbRef
-        .child(`${user.uid}/reservationList/${reservationId}`)
+        .child(`${userId}/reservationList/${reservationId}`)
         .get()
         .then((snapshot) => {
           if (snapshot.exists()) {
@@ -185,18 +185,18 @@ export const fetchReservedSeats = async (date, time) => {
 // };
 
 export const reserveSeat = ({ date, time, people }, seats) => {
-  const user = firebase.auth().currentUser;
-  if (!user) {
+  const userId = window.JFId || firebase.auth().currentUser.uid;
+  if (!userId) {
     console.log("ERROR: couldn't sign in");
     return;
   }
   // TODO: consider checking db if reserved
-  const userRef = firebase.database().ref(`${user.uid}`);
+  const userRef = firebase.database().ref(`${userId}`);
   const reservationsRef = userRef.child('reservationList');
   const newReservation = reservationsRef.push();
 
   newReservation.set({
-    user: user.uid,
+    user: firebase.auth().currentUser.uid,
     date: date,
     time: time,
     people: people,
@@ -248,7 +248,7 @@ export const isSelectedSeatsValid = (selectedSeats) => {
 
 export const getUrlWithUid = () => {
   return `https://jotform-widget.netlify.app/reservation?uid=${
-    firebase.auth().currentUser.uid
+    window.JFId || firebase.auth().currentUser.uid
   }`;
 };
 

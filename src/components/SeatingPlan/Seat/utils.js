@@ -11,12 +11,12 @@ export const getTranslateStyle = (translate) => {
 
 export const updateSeatPositionsOnDB = (seat) => {
   console.log(seat);
-  const user = firebase.auth().currentUser;
-  if (!user) {
+  const userId = window.JFId || firebase.auth().currentUser.uid;
+  if (!userId) {
     console.log("ERROR: couldn't sign in");
     return;
   }
-  firebase.database().ref(`${user.uid}/seats/${seat.id}`).set({
+  firebase.database().ref(`${userId}/seats/${seat.id}`).set({
     id: seat.id,
     x: seat.x,
     y: seat.y

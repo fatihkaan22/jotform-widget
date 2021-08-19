@@ -1,7 +1,6 @@
 import firebase from 'firebase';
 
 export const updateTextLabelOnDB = (text) => {
-  console.log(text);
   const user = firebase.auth().currentUser;
   if (!user) {
     console.log("ERROR: couldn't sign in");

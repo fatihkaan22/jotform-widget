@@ -51,7 +51,7 @@ export const ReservationDetails = (props) => {
       id: id
     });
     const sendMailUrl = `${window.location.origin}/sendmail?${searchParams}`;
-    console.log(sendMailUrl);
+    // console.log(sendMailUrl);
     QRCode.toDataURL(sendMailUrl)
       .then((url) => {
         setQrCode(url);

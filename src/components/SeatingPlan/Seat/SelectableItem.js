@@ -24,7 +24,6 @@ const SelectableItem = ({
   };
 
   const handleOnClick = () => {
-    console.log(selectSeat);
     if (disabled || !selectSeat) {
       return undefined;
     }

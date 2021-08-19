@@ -106,7 +106,6 @@ export const TextLabel = ({
   const updateSize = (e, direction, ref, d) => {
     const updatedWidth = width + d.width;
     const updatedHeight = height + d.height;
-    console.log(updatedWidth, updatedHeight);
     setWidth(updatedWidth);
     setHeight(updatedHeight);
     updateTextLabelOnDB({

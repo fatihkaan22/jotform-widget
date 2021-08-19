@@ -86,7 +86,6 @@ export const SeatingPlan = (props) => {
       Details: getUrlWithUid()
       // Seats: [...selectedSeats]
     };
-    console.log(window.location.origin);
 
     window.JFData.value = prettyjson.render(reservationDetails);
 
@@ -95,8 +94,6 @@ export const SeatingPlan = (props) => {
   }, [fieldState, selectedSeats]);
 
   const makeReservation = (event) => {
-    console.log(fieldState);
-    console.log(selectedSeats);
     if (
       !fieldState.date ||
       !fieldState.time ||
@@ -142,15 +139,16 @@ export const SeatingPlan = (props) => {
 
   const handleAddButtonClick = () => {
     setSeats([...seats, { id: 'seat-' + nanoid(8), x: 0, y: 0 }]);
-    window.JFCustomWidget.requestFrameResize({
-      height: 400,
-      width: 300
-    });
+    console.log('v1');
+    console.log(window.JFCustomWidget);
+    window.JFCustomWidget.sendData(JFData.value);
+    // window.JFCustomWidget.requestFrameResize({
+    //   height: 400
+    // });
     // window.JFCustomWidget.sendReady({ type: '' });
   };
 
   const handleAddText = () => {
-    console.log('active');
     setAddTextActive(true);
   };
 

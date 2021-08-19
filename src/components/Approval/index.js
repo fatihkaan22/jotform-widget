@@ -26,7 +26,7 @@ export const Approval = () => {
             console.log('ERROR: setting reservation details');
             // setMessage('error');
           } else {
-            console.log('success');
+            // console.log('success');
             setMessage('success');
             closeTab();
           }
