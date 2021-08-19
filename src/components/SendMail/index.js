@@ -24,11 +24,15 @@ export const SendMail = () => {
     return result;
   }, {});
 
+  const reservationUrl = `${
+    window.location.origin
+  }/reservation?${queryString.stringify({ ...identifier })}`;
+
   useEffect(() => {
     init('user_DS9qmbDlsSmsuMBGbDDHH');
     emailjs
       .send('service_jnfsw95', 'template_klud13v', {
-        message: `uid: ${uid}, id: ${id}`,
+        reservationUrl: reservationUrl,
         to: 'fatihkaansalgir@gmail.com',
         actionApprove: actionUrlMap.approve,
         actionDeny: actionUrlMap.deny
@@ -42,7 +46,7 @@ export const SendMail = () => {
           setStatus('error');
         }
       );
-    console.log(uid, id);
+    // console.log(uid, id);
   }, []);
 
   return (
