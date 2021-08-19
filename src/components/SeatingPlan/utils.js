@@ -6,7 +6,7 @@ import { GRID, GRID_ITEM, PEOPLE, TEXT_LABEL } from '../../constants/common';
 export const fetchUserData = async (uid) => {
   let userId = uid;
   if (!uid) {
-    userId = window.JFId || firebase.auth().currentUser.uid;
+    userId = window.JFid || firebase.auth().currentUser.uid;
   }
   const dbRef = firebase.database().ref();
   let seatsFromDB = [];
@@ -32,7 +32,7 @@ export const fetchUserData = async (uid) => {
 };
 
 export const deleteSeatFromDB = (seatId) => {
-  const userId = window.JFId || firebase.auth().currentUser.uid;
+  const userId = window.JFid || firebase.auth().currentUser.uid;
   if (!userId) {
     console.log("ERROR: couldn't sign in");
     return;
@@ -41,7 +41,7 @@ export const deleteSeatFromDB = (seatId) => {
 };
 
 export const deleteTextFromDB = (textId) => {
-  const userId = window.JFId || firebase.auth().currentUser.uid;
+  const userId = window.JFid || firebase.auth().currentUser.uid;
   if (!userId) {
     console.log("ERROR: couldn't sign in");
     return;
@@ -50,7 +50,7 @@ export const deleteTextFromDB = (textId) => {
 };
 
 export const updateSeatTypeOnDB = (seatType) => {
-  const userId = window.JFId || firebase.auth().currentUser.uid;
+  const userId = window.JFid || firebase.auth().currentUser.uid;
   if (!userId) {
     console.log("ERROR: couldn't sign in");
     return;
@@ -121,7 +121,7 @@ export const getCurrentDate = () => {
 // };
 
 export const fetchReservedSeats = async (date, time) => {
-  const userId = window.JFId || firebase.auth().currentUser.uid;
+  const userId = window.JFid || firebase.auth().currentUser.uid;
   const dbRef = firebase.database().ref();
   let reservationIds;
   let reservedFromBD = [];
@@ -185,7 +185,7 @@ export const fetchReservedSeats = async (date, time) => {
 // };
 
 export const reserveSeat = ({ date, time, people }, seats) => {
-  const userId = window.JFId || firebase.auth().currentUser.uid;
+  const userId = window.JFid || firebase.auth().currentUser.uid;
   if (!userId) {
     console.log("ERROR: couldn't sign in");
     return;
@@ -248,7 +248,7 @@ export const isSelectedSeatsValid = (selectedSeats) => {
 
 export const getUrlWithUid = () => {
   return `https://jotform-widget.netlify.app/reservation?uid=${
-    window.JFId || firebase.auth().currentUser.uid
+    window.JFid || firebase.auth().currentUser.uid
   }`;
 };
 

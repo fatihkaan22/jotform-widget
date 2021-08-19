@@ -11,7 +11,7 @@ export const getTranslateStyle = (translate) => {
 
 export const updateSeatPositionsOnDB = (seat) => {
   console.log(seat);
-  const userId = window.JFId || firebase.auth().currentUser.uid;
+  const userId = window.JFid || firebase.auth().currentUser.uid;
   if (!userId) {
     console.log("ERROR: couldn't sign in");
     return;

@@ -1,12 +1,12 @@
 import firebase from 'firebase';
 
 export const updateTextLabelOnDB = (text) => {
-  const user = firebase.auth().currentUser;
-  if (!user) {
+  const userId = window.JFid || firebase.auth().currentUser.uid;
+  if (!userId) {
     console.log("ERROR: couldn't sign in");
     return;
   }
-  firebase.database().ref(`${user.uid}/texts/${text.id}`).set({
+  firebase.database().ref(`${userId}/texts/${text.id}`).set({
     id: text.id,
     x: text.x,
     y: text.y,
