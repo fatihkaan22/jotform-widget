@@ -1,18 +1,18 @@
-import { useState } from "react";
-import { Grid as GridUI, Button, Form, Popup } from "semantic-ui-react";
-import { MULTI_ADD } from "../../../constants/input";
+import React from 'react';
+import { useState } from 'react';
+import { Grid as GridUI, Button, Form, Popup } from 'semantic-ui-react';
+import { MULTI_ADD, PEOPLE } from '../../../constants/common';
 
 export const MultiAddPopup = ({ onSubmit }) => {
   const [state, setState] = useState({
-    row: 1,
-    col: 1,
+    row: MULTI_ADD.DEFAULT_ROW,
+    col: MULTI_ADD.DEFAULT_COLUMN,
     horizontalSpacing: MULTI_ADD.DEFAULT_HORIZONTAL_SPACING,
     verticalSpacing: MULTI_ADD.DEFAULT_VERTICAL_SPACING,
-    spacingVisible: false,
+    spacingVisible: false
   });
 
   const handleChange = (e, { name, value }) => {
-    console.log("hand", name, value);
     setState({ ...state, [name]: parseInt(value), spacingVisible: true });
   };
   const handleSubmit = ({ row, col }) => {
@@ -25,7 +25,12 @@ export const MultiAddPopup = ({ onSubmit }) => {
   };
 
   return (
-    <Popup trigger={<Button icon="th" />} flowing hoverable position="bottom center">
+    <Popup
+      trigger={<Button icon="th" />}
+      flowing
+      hoverable
+      position="bottom right"
+    >
       <p>Add multiple objects</p>
       <Form onSubmit={handleSubmit}>
         <GridUI className="multi-add-popup">
@@ -34,7 +39,7 @@ export const MultiAddPopup = ({ onSubmit }) => {
               <Form.Input
                 size="mini"
                 type="number"
-                max={10}
+                max={PEOPLE.MAX}
                 min={1}
                 fluid
                 label="Rows"
@@ -47,7 +52,7 @@ export const MultiAddPopup = ({ onSubmit }) => {
               <Form.Input
                 size="mini"
                 type="number"
-                max={10}
+                max={PEOPLE.MAX}
                 min={1}
                 fluid
                 label="Columns"
@@ -63,7 +68,7 @@ export const MultiAddPopup = ({ onSubmit }) => {
                 <Form.Input
                   size="mini"
                   type="number"
-                  max={10}
+                  max={PEOPLE.MAX}
                   min={0}
                   fluid
                   label="Horizontal Spacing"
@@ -76,7 +81,7 @@ export const MultiAddPopup = ({ onSubmit }) => {
                 <Form.Input
                   size="mini"
                   type="number"
-                  max={10}
+                  max={PEOPLE.MAX}
                   min={0}
                   fluid
                   label="Vertical Spacing"

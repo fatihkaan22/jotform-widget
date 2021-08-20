@@ -12,13 +12,13 @@
   z-index: 99;
 }
 
-/* TODO: set width according to GridUI */
 .menu-preview {
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
   max-width: 900px;
+  margin-top: 10px;
   /* margin: 10px; */
 }
 
@@ -27,18 +27,13 @@
   top: 0;
   left: 0;
   width: 100%;
-  max-width: 300px;
+  max-width: 400px;
   /* margin: 10px; */
 }
 
 .multi-add-popup {
   width: 180px;
 }
-
-/* TODO: matches better with jotform's edit panel */
-/* .menu-edit label {
-  color: white !important;
-} */
 
 /* remove arrows/spinners: https://www.w3schools.com/howto/howto_css_hide_arrow_number.asp  */
 /* Chrome, Safari, Edge, Opera */
@@ -49,8 +44,8 @@
 }
 
 /* Firefox */
-.no-spinner input[type="number"] {
-  -moz-appearance: textfield;
+.no-spinner input[type='number'] {
+  -moz-appearance: textfield !important;
 }
 
 .info-portal {
@@ -58,4 +53,23 @@
   position: fixed !important;
   top: 20%;
   z-index: 1000;
+}
+
+.addTextActive {
+  cursor: text !important;
+}
+
+#select-type-text {
+  font-size: 16px;
+  font-weight: 700;
+  padding-left: 8px;
+  color: white;
+}
+
+#select-type-div {
+  margin-top: 8px;
+}
+
+#menu-button-group {
+  padding-left: 0;
 }

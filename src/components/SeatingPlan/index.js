@@ -1,7 +1,10 @@
-import { useState, useMemo, useEffect } from "react";
-import { Seat } from "./Seat";
-import { Grid } from "../Grid";
-import "./style.css";
+import React, { useState, useMemo, useEffect } from 'react';
+import firebase from 'firebase';
+import { DateInput, TimeInput } from 'semantic-ui-calendar-react';
+import { createSnapModifier, restrictToWindowEdges } from '@dnd-kit/modifiers';
+import { Seat } from './Seat';
+import { Grid } from '../Grid';
+import './style.css';
 import {
   deleteSeatFromDB,
   updateSeatTypeOnDB,
@@ -14,59 +17,136 @@ import {
   reserveSeat,
   isPeopleLessThanSelected,
   checkEveryItemIncludes,
-} from "./utils";
-import { createSnapModifier, restrictToWindowEdges } from "@dnd-kit/modifiers";
-import { nanoid } from "nanoid";
-import { Dropdown } from "../Dropdown";
-import {
-  Input,
-  Grid as GridUI,
-  Button,
-  Form,
-  Popup,
-  TransitionablePortal,
-  Message,
-} from "semantic-ui-react";
-import { DateInput, TimeInput } from "semantic-ui-calendar-react";
-import { MultiAddPopup } from "./Seat/MultiAddPopup";
-import { GRID, PEOPLE } from "../../constants/input";
-import SEAT_TYPES_MAP from "../../constants/icons";
+  deleteTextFromDB,
+  getMousePosition,
+  getNewTextLabel,
+  isFieldsValid,
+  isSelectedSeatsValid,
+  getUrlWithUid,
+  getItemStyle
+} from './utils';
+import { nanoid } from 'nanoid';
+import { Helmet } from 'react-helmet';
+import { Dropdown } from '../Dropdown';
+import { Input, Grid as GridUI, Button, Form, Popup } from 'semantic-ui-react';
+import { MultiAddPopup } from './Seat/MultiAddPopup';
+import { GRID, PEOPLE } from '../../constants/common';
+import SEAT_TYPES_MAP from '../../constants/icons';
+import { TextLabel } from './TextLabel';
+import { updateTextLabelOnDB } from './TextLabel/utils';
+import { updateSeatPositionsOnDB } from './Seat/utils';
+import { PortalMessage } from './Message';
+import prettyjson from 'prettyjson';
 
 export const SeatingPlan = (props) => {
   const [gridSize, setGridSize] = useState(GRID.SIZE);
-  const itemStyle = {
-    width: gridSize * GRID.ITEM_WIDTH - 1,
-    height: gridSize * GRID.ITEM_HEIGHT - 1,
-  };
-
-  // TODO: consider putting states in a single object
   const [seats, setSeats] = useState([]);
+  const [textLabels, setTextLabels] = useState([]);
   const defaultType = Object.keys(SEAT_TYPES_MAP)[0];
   const [selectedType, setSelectedType] = useState(defaultType);
   const [selectedSeats, setSelectedSeats] = useState(new Set());
   const [reservedSeats, setReservedSeats] = useState([]);
   const snapToGrid = useMemo(() => createSnapModifier(gridSize), [gridSize]);
   const [fieldState, setFieldState] = useState({
-    date: "",
-    time: "",
-    people: PEOPLE.DEFAULT,
+    date: '',
+    time: '',
+    people: PEOPLE.DEFAULT
   });
   const [isLoading, setIsLoading] = useState(false);
   const [errorAllReserved, setErrorAllReserved] = useState(false);
   const [errorSelectSeat, setErrorSelectSeat] = useState(false);
   const [errorEmptyFields, setErrorEmptyFields] = useState(false);
+  const [errorCheckAvailability, setErrorCheckAvailability] = useState(false);
+  const [infoAllSeatsAvailable, setInfoAllSeatsAvailable] = useState(false);
+  const [addTextActive, setAddTextActive] = useState(false);
+  const [selectSeatActive, setSelectSeatActive] = useState(false);
 
   useEffect(() => {
-    const getSeats = async () => {
-      const { seatsFromDB, seatTypeFromDB } = await fetchUserData();
+    const getData = async () => {
+      const { seatsFromDB, seatTypeFromDB, textLabelsFromDB } =
+        await fetchUserData();
       setSeats(seatsFromDB ? seatsFromDB : []);
       setSelectedType(seatTypeFromDB ? seatTypeFromDB : defaultType);
+      setTextLabels(textLabelsFromDB ? textLabelsFromDB : []);
     };
-    getSeats();
-  }, []);
+    getData();
+  }, []); // []: only runs in initial render
+
+  useEffect(() => {
+    if (!window.JFData) window.JFData = {};
+    window.JFData.valid =
+      isFieldsValid(fieldState) && isSelectedSeatsValid(selectedSeats);
+
+    const reservationDetails = {
+      Date: fieldState.date,
+      Time: fieldState.time,
+      People: fieldState.people,
+      Details: getUrlWithUid()
+      // Seats: [...selectedSeats]
+    };
+
+    window.JFData.value = prettyjson.render(reservationDetails);
+
+    console.log(window.JFData);
+    console.log(window.JFData.value);
+  }, [fieldState, selectedSeats]);
+
+  const makeReservation = (event) => {
+    if (
+      !fieldState.date ||
+      !fieldState.time ||
+      !fieldState.people ||
+      !selectedSeats ||
+      selectedSeats.size === 0
+    ) {
+      setErrorEmptyFields(true);
+      console.log('ERROR: empty fields');
+      return;
+    }
+    const reservationId = reserveSeat(fieldState, selectedSeats);
+    setSelectedSeats(new Set());
+    return reservationId;
+  };
+
+  useEffect(() => {
+    // JFSubmit will be called when Submit button is clicked on the form
+    window.JFSubmit = makeReservation;
+  }, [selectedSeats]);
+
+  const addTextOnMouseClick = (event) => {
+    const [x, y] = getMousePosition(event);
+    // y > 0: inside of the grid
+    if (!addTextActive || y < 0) return;
+    const newTextLabel = getNewTextLabel(x, y);
+    setTextLabels([...textLabels, newTextLabel]);
+    setAddTextActive(false);
+    updateTextLabelOnDB(newTextLabel);
+  };
+
+  // for adding text
+  useEffect(() => {
+    if (addTextActive) {
+      document.addEventListener('click', addTextOnMouseClick);
+      document.getElementsByTagName('body')[0].style.cursor = 'copy';
+    }
+    return () => {
+      document.removeEventListener('click', addTextOnMouseClick);
+      document.getElementsByTagName('body')[0].style.cursor = '';
+    };
+  }, [addTextActive]);
 
   const handleAddButtonClick = () => {
-    setSeats([...seats, { id: "seat-" + nanoid(), x: 0, y: 0 }]);
+    setSeats([...seats, { id: 'seat-' + nanoid(), x: 0, y: 0 }]);
+  };
+
+  const handleAddText = () => {
+    setAddTextActive(true);
+  };
+
+  const deleteText = (textId) => {
+    const updatedTexts = textLabels.filter((text) => textId !== text.id);
+    setTextLabels(updatedTexts);
+    deleteTextFromDB(textId);
   };
 
   const handleMultiAddButtonClick = (
@@ -81,8 +161,8 @@ export const SeatingPlan = (props) => {
       horizontalSpacing,
       verticalSpacing
     );
-
     setSeats([...seats, ...newSeats]);
+    newSeats.forEach((seat) => updateSeatPositionsOnDB(seat));
   };
 
   const deleteSeat = (seatId) => {
@@ -97,6 +177,10 @@ export const SeatingPlan = (props) => {
   };
 
   const selectSeat = (seatId) => {
+    if (!selectSeatActive) {
+      setErrorCheckAvailability(true);
+      return;
+    }
     if (isPeopleLessThanSelected(fieldState.people, selectedSeats.size)) {
       setErrorSelectSeat(true);
       return;
@@ -106,9 +190,6 @@ export const SeatingPlan = (props) => {
   };
 
   const unselectSeat = (seatId) => {
-    // TODO:
-    // const updatedSeats = [...selectedSeats].filter((id) => seatId !== id);
-    // setSelectedSeats(new Set([...updatedSeats]));
     setSelectedSeats((prevSelectedSeats) => {
       const updatedSeats = [...prevSelectedSeats].filter((id) => seatId !== id);
       return new Set(updatedSeats);
@@ -118,7 +199,10 @@ export const SeatingPlan = (props) => {
 
   // date - time fields
   const handleChange = (event, { name, value }) => {
-    // TODO: clear selectables
+    //clear selected/reserved seats
+    setSelectedSeats(new Set());
+    setReservedSeats([]);
+    setSelectSeatActive(false);
     if (fieldState.hasOwnProperty(name)) {
       setFieldState({ ...fieldState, [name]: value });
     }
@@ -145,11 +229,10 @@ export const SeatingPlan = (props) => {
   const handleCheckAvailability = (event) => {
     if (!fieldState.date || !fieldState.time || !fieldState.people) {
       setErrorEmptyFields(true);
-      console.log("ERROR: empty fields");
+      console.log('ERROR: empty fields');
       return;
     }
     setErrorEmptyFields(false);
-    // TODO: all seats are available / no seats are available
     const getReserved = async () => {
       setIsLoading(true);
       const reservedFromBD = await fetchReservedSeats(
@@ -157,33 +240,18 @@ export const SeatingPlan = (props) => {
         fieldState.time
       );
       setReservedSeats(reservedFromBD);
-      // TODO: doesn't unselect elements, why?
       reservedFromBD.forEach((seatId) => unselectSeat(seatId));
       setIsLoading(false);
       const seatIds = seats.map((seat) => seat.id);
       if (checkEveryItemIncludes(reservedFromBD, seatIds)) {
-        // all seats reserved
         setErrorAllReserved(true);
+      }
+      if (reservedFromBD.length === 0) {
+        setInfoAllSeatsAvailable(true);
       }
     };
     getReserved();
-  };
-
-  // for debugging purposes; to simulate submit
-  const handleUp = (event) => {
-    if (
-      !fieldState.date ||
-      !fieldState.time ||
-      !fieldState.people ||
-      !selectedSeats ||
-      selectedSeats.size === 0
-    ) {
-      setErrorEmptyFields(true);
-      console.log("ERROR: empty fields");
-      return;
-    }
-    reserveSeat(fieldState, selectedSeats);
-    setSelectedSeats(new Set());
+    setSelectSeatActive(true);
   };
 
   const seatList = seats.map((seat) => (
@@ -191,7 +259,7 @@ export const SeatingPlan = (props) => {
       id={seat.id}
       key={seat.id}
       coordinates={{ x: seat.x, y: seat.y }}
-      style={itemStyle}
+      style={getItemStyle()}
       modifiers={[snapToGrid, restrictToWindowEdges]}
       gridSize={gridSize}
       deleteSeat={deleteSeat}
@@ -204,15 +272,36 @@ export const SeatingPlan = (props) => {
     />
   ));
 
+  const textLabelList = textLabels.map((textLabel) => (
+    <TextLabel
+      id={textLabel.id}
+      key={textLabel.id}
+      coordinates={{ x: textLabel.x, y: textLabel.y }}
+      modifiers={[snapToGrid, restrictToWindowEdges]}
+      gridSize={gridSize}
+      editable={props.editable}
+      value={textLabel.value}
+      initialWidth={textLabel.width}
+      initialHeight={textLabel.height}
+      deleteText={deleteText}
+    />
+  ));
+
   return (
     <>
       {props.editable ? (
         <div className="menu-edit">
+          <Helmet>
+            <style>{'body { background-color: #3e4652; }'}</style>
+          </Helmet>
+          <div id="select-type-div">
+            <label id="select-type-text">Select type and add</label>
+          </div>
+          <br />
           <GridUI columns={2}>
-            <GridUI.Column>
+            <GridUI.Column width={7}>
               <Form>
                 <Form.Field>
-                  <label>Select type and add</label>
                   <Dropdown
                     options={SEAT_TYPES_MAP}
                     value={selectedType}
@@ -221,16 +310,21 @@ export const SeatingPlan = (props) => {
                 </Form.Field>
               </Form>
             </GridUI.Column>
-            <GridUI.Column verticalAlign="bottom">
+            <GridUI.Column id="menu-button-group" verticalAlign="bottom">
               <Popup
-                content={"Add object"}
+                content={'Add object'}
                 position="bottom center"
                 trigger={<Button icon="add" onClick={handleAddButtonClick} />}
+              />
+              <Popup
+                content={'Add text'}
+                position="bottom center"
+                trigger={<Button icon="pencil" onClick={handleAddText} />}
               />
               <MultiAddPopup onSubmit={handleMultiAddButtonClick} />
               <Popup
                 content="To remove objects move outside of the grid."
-                position="bottom center"
+                position="bottom right"
                 trigger={<Button icon="trash" />}
               />
             </GridUI.Column>
@@ -245,6 +339,7 @@ export const SeatingPlan = (props) => {
                   <label>Date</label>
                   <DateInput
                     name="date"
+                    placeholder="DD-MM-YYYY"
                     value={fieldState.date}
                     onChange={handleChange}
                     minDate={getCurrentDate()}
@@ -259,6 +354,7 @@ export const SeatingPlan = (props) => {
                   <label>Time</label>
                   <TimeInput
                     name="time"
+                    placeholder="HH:MM"
                     value={fieldState.time}
                     onChange={handleChange}
                     disableMinute
@@ -292,42 +388,51 @@ export const SeatingPlan = (props) => {
                 content="Check Availability"
                 onClick={handleCheckAvailability}
               />
-              <TransitionablePortal
+              <PortalMessage
                 open={errorAllReserved}
                 onClose={() => setErrorAllReserved(false)}
-              >
-                <Message error className="info-portal">
-                  <Message.Header>All seats are reserved</Message.Header>
-                  <p>{`There are no available seats on ${fieldState.date} at ${fieldState.time}.`}</p>
-                </Message>
-              </TransitionablePortal>
-              <TransitionablePortal
+                header="All seats are reserved"
+                text={`There are no available seats on ${fieldState.date} at ${fieldState.time}.`}
+                error
+              />
+              <PortalMessage
                 open={errorSelectSeat}
                 onClose={() => setErrorSelectSeat(false)}
-              >
-                <Message warning className="info-portal">
-                  <Message.Header>Couldn't make selection</Message.Header>
-                  <p>{`You can not select seats more than number of people (${fieldState.people}).`}</p>
-                </Message>
-              </TransitionablePortal>
-              <TransitionablePortal
+                header="Couldn't make selection"
+                text={`You can not select seats more than number of people (${fieldState.people}).`}
+                warning
+              />
+              <PortalMessage
                 open={errorEmptyFields}
                 onClose={() => setErrorEmptyFields(false)}
+                header="Fields are empty"
+                warning
               >
-                <Message warning className="info-portal">
-                  <Message.Header>Fields are empty</Message.Header>
-                  <p>
-                    Couldn't check availability.
-                    <br />
-                    Please make sure fill the date and time fields
-                  </p>
-                </Message>
-              </TransitionablePortal>
-              <Button icon="angle up" onClick={handleUp} />
+                <p>
+                  Couldn't check availability.
+                  <br />
+                  Please make sure fill the date and time fields
+                </p>
+              </PortalMessage>
+              <PortalMessage
+                open={infoAllSeatsAvailable}
+                onClose={() => setInfoAllSeatsAvailable(false)}
+                header="All seats are available"
+                text={`You can select any seat you want`}
+                success
+              />
+              <PortalMessage
+                open={errorCheckAvailability}
+                onClose={() => setErrorCheckAvailability(false)}
+                header="Please click 'Check Availability' button first"
+                text={'Selection can be made after checking availability.'}
+                warning
+              />
             </GridUI.Column>
           </GridUI>
         </div>
       )}
+      {textLabelList}
       {seatList}
       <Grid size={gridSize} onSizeChange={setGridSize} />
     </>

@@ -1,6 +1,7 @@
-import classNames from "classnames";
+import React from 'react';
+import classNames from 'classnames';
 
-import { getTranslateStyle } from "./utils";
+import { getTranslateStyle } from './utils';
 
 const SelectableItem = ({
   id,
@@ -10,11 +11,11 @@ const SelectableItem = ({
   selectSeat,
   unselectSeat,
   disabled,
-  selected,
+  selected
 }) => {
   const styleSelectable = getTranslateStyle(translate);
 
-  const handleSelect = (event) => {
+  const handleSelect = () => {
     if (!selected) {
       selectSeat(id);
     } else {
@@ -22,12 +23,22 @@ const SelectableItem = ({
     }
   };
 
+  const handleOnClick = () => {
+    if (disabled || !selectSeat) {
+      return undefined;
+    }
+    handleSelect();
+  };
+
   return (
     <div className="Selectable" style={styleSelectable}>
       <button
-        className={classNames({ selectedItem: selected, disabledSeat: disabled })}
+        className={classNames({
+          selectedItem: selected,
+          disabledSeat: disabled
+        })}
         style={style}
-        onClick={disabled ? undefined : handleSelect}
+        onClick={handleOnClick}
       >
         {innerComponent.component}
       </button>

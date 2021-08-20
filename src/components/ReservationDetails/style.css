@@ -1,0 +1,33 @@
+#reservation-details-card {
+  margin: auto;
+  margin-top: 30px;
+  width: 350px;
+}
+
+#reservation-details-extra {
+  height: 500px;
+}
+
+#reservation-details-seat-wrapper {
+  margin-top: -100px;
+}
+
+.reservation-detail-icon {
+  margin: auto !important;
+  margin-top: 30px !important;
+  margin-bottom: 30px !important;
+}
+
+#reservation-details-icon-wrapper {
+  background-color: #f2f2f2;
+  display: flex;
+}
+
+#reservation-details-image {
+  padding: 40px;
+}
+
+#reservation-details-placeholder {
+  height: 200px;
+  background-color: #f2f2f2;
+}

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState } from 'react';
 import {
   DndContext,
   useSensor,
@@ -6,12 +6,12 @@ import {
   TouchSensor,
   KeyboardSensor,
   useSensors,
-} from "@dnd-kit/core";
-import { Wrapper } from "../../Wrapper";
-import "./style.css";
-import { updateSeatPositionsOnDB } from "./utils";
-import SelectableItem from "./SelectableItem";
-import DraggableItem from "./DraggableItem";
+} from '@dnd-kit/core';
+import { Wrapper } from '../../Wrapper';
+import './style.css';
+import { updateSeatPositionsOnDB } from './utils';
+import SelectableItem from './SelectableItem';
+import DraggableItem from './DraggableItem';
 
 export const Seat = ({
   id,
