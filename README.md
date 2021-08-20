@@ -1,10 +1,41 @@
-<!-- TODO: heading & netlify link -->
+# Seating Plan
 
-# Getting Started with Create React App
+[![Netlify Status](https://api.netlify.com/api/v1/badges/7584814a-ceb9-4ee4-8161-313b5b036789/deploy-status)](https://app.netlify.com/sites/jotform-widget/deploys)
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Seating Plan allows JotForm users to create a plan for seat-based registration events (like restaurants, theaters, cinemas, bus tours etc.) so that the form users can reserve the seats according to plan. It is developed during internship period in JotForm.
 
-## Available Scripts
+You can create a seating plan on 'Edit Page', and preview on the 'Preview Page'.
+
+- Edit Page: https://jotform-widget.netlify.app/edit
+- Preview Page: https://jotform-widget.netlify.app/
+- Example Reservation Details: https://jotform-widget.netlify.app/reservation?uid=212303313933040&id=-MhYZdt3Jj1vfsd36ahk
+
+## Use cases on the forms
+
+### [Restaurant Reservation Form](https://form.jotform.com/212303222198042)
+
+<img alt="Restaurant-Reservation-Form" src=".github/images/jf-with-edit-panel.png" />
+
+### [Cinema Form](https://form.jotform.com/212303313933040)
+<img alt="Cinema-Form" src=".github/images/cinema-selected-reserved.png" width="70%" />
+<br>
+
+### Reservation Details
+
+<p align="center">
+	<img alt="" src=".github/images/reservation-details-cinema-2.png" width="40%" />
+	<img alt="" src=".github/images/reservation-details-restaurant-approved.png" width="40%" />
+</p>
+
+- Restaurant reservation form: 
+
+## Technologies
+
+- This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+- Firebase for anonymous login and storing user data such as seat position, type and reservations.
+- [dnd-kit](https://github.com/clauderic/dnd-kit) for draggables on the edit page.
+- [Semantic UI React](https://react.semantic-ui.com/) as primary UI kit.
+- [JotForm Widget API](https://www.jotform.com/developers/widgets/) for integration with JotForm.
 
 In the project directory, you can run:
 
@@ -16,11 +47,6 @@ Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
 The page will reload if you make edits.\
 You will also see any lint errors in the console.
 
-### `yarn test`
-
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
-
 ### `yarn build`
 
 Builds the app for production to the `build` folder.\
@@ -30,43 +56,3 @@ The build is minified and the filenames include the hashes.\
 Your app is ready to be deployed!
 
 See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
-
-### `yarn eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
-
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
-
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `yarn build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
