@@ -63,7 +63,6 @@ const EditPage = () => {
 };
 
 const PreviewPage = () => {
-  // TODO: If no tables, add message: click wizard to show...
   return <SeatingPlan editable={false} />;
 };
 

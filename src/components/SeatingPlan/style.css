@@ -12,7 +12,6 @@
   z-index: 99;
 }
 
-/* TODO: set width according to GridUI */
 .menu-preview {
   position: absolute;
   top: 0;
@@ -35,11 +34,6 @@
 .multi-add-popup {
   width: 180px;
 }
-
-/* TODO: matches better with jotform's edit panel */
-/* .menu-edit label {
-  color: white !important;
-} */
 
 /* remove arrows/spinners: https://www.w3schools.com/howto/howto_css_hide_arrow_number.asp  */
 /* Chrome, Safari, Edge, Opera */
@@ -73,7 +67,6 @@
 }
 
 #select-type-div {
-  backgroundcolor: '#0293e2';
   margin-top: 8px;
 }
 

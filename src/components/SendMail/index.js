@@ -33,6 +33,7 @@ export const SendMail = () => {
     emailjs
       .send('service_jnfsw95', 'template_klud13v', {
         reservationUrl: reservationUrl,
+        // TODO: dynamic e-mail
         to: 'fatihkaansalgir@gmail.com',
         actionApprove: actionUrlMap.approve,
         actionDeny: actionUrlMap.deny

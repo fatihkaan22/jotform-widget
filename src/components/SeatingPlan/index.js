@@ -36,12 +36,10 @@ import { TextLabel } from './TextLabel';
 import { updateTextLabelOnDB } from './TextLabel/utils';
 import { updateSeatPositionsOnDB } from './Seat/utils';
 import { PortalMessage } from './Message';
-import QRCode from 'qrcode';
 import prettyjson from 'prettyjson';
 
 export const SeatingPlan = (props) => {
   const [gridSize, setGridSize] = useState(GRID.SIZE);
-  // TODO: consider putting states in a single object
   const [seats, setSeats] = useState([]);
   const [textLabels, setTextLabels] = useState([]);
   const defaultType = Object.keys(SEAT_TYPES_MAP)[0];
@@ -129,7 +127,7 @@ export const SeatingPlan = (props) => {
   useEffect(() => {
     if (addTextActive) {
       document.addEventListener('click', addTextOnMouseClick);
-      document.getElementsByTagName('body')[0].style.cursor = 'copy'; // TODO: consider 'text'
+      document.getElementsByTagName('body')[0].style.cursor = 'copy';
     }
     return () => {
       document.removeEventListener('click', addTextOnMouseClick);
@@ -138,14 +136,7 @@ export const SeatingPlan = (props) => {
   }, [addTextActive]);
 
   const handleAddButtonClick = () => {
-    setSeats([...seats, { id: 'seat-' + nanoid(8), x: 0, y: 0 }]);
-    console.log('v1');
-    console.log(window.JFCustomWidget);
-    window.JFCustomWidget.sendData(JFData.value);
-    // window.JFCustomWidget.requestFrameResize({
-    //   height: 400
-    // });
-    // window.JFCustomWidget.sendReady({ type: '' });
+    setSeats([...seats, { id: 'seat-' + nanoid(), x: 0, y: 0 }]);
   };
 
   const handleAddText = () => {
